@@ -160,7 +160,7 @@ export default function RecordDetailPage() {
               {otherFields.map((f) => (
                 <div key={f.id} className={`py-1 ${f.fieldType === 'textarea' ? 'sm:col-span-2' : ''}`}>
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{f.label}</label>
-                  <InlineEditField field={f} value={values[f.fieldKey]} onSave={handleFieldSave} />
+                  <InlineEditField field={f} value={values[f.fieldKey]} onSave={handleFieldSave} disabled={!canEdit} />
                 </div>
               ))}
             </div>
