@@ -20,6 +20,8 @@ import { RelatedRecordsPanel } from "@/components/records/RelatedRecordsPanel";
 import { RecordDeleteDialog } from "@/components/records/RecordDeleteDialog";
 import { LeadScoreBadge } from "@/components/LeadScoreBadge";
 import { RecordTagsManager } from "@/components/records/RecordTags";
+import { AuditLogTimeline } from "@/components/records/AuditLogTimeline";
+import { useAuditLogs } from "@/hooks/useAuditLogs";
 import { useToast } from "@/hooks/use-toast";
 
 const stageColors: Record<string, string> = {
