@@ -15,6 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { useWorkspace } from '@/hooks/useWorkspace';
 import { useApiKeys } from '@/hooks/useApiKeys';
+import { RoleManagement } from '@/components/RoleManagement';
 import { PLANS, TIMEZONES, CURRENCIES, DATE_FORMATS, PlanTier } from '@/lib/workspace-types';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
