@@ -105,6 +105,7 @@ export default function RecordDetailPage() {
               </div>
               <div className="flex items-center gap-2 mt-2">
                 {stage && <Badge variant="outline" className={`text-xs ${stageColors[stage] || 'bg-muted text-muted-foreground'}`}>{stage}</Badge>}
+                {leadScore && <LeadScoreBadge score={leadScore.score} category={leadScore.category} size="md" />}
                 <span className="text-xs text-muted-foreground flex items-center gap-1"><User className="h-3 w-3" /> {record.createdBy}</span>
                 <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" /> {new Date(record.createdAt).toLocaleDateString()}</span>
               </div>
