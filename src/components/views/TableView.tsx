@@ -126,7 +126,7 @@ export function TableView({
                 </tr>
               );
             })}
-            {records.length === 0 && (<tr><td colSpan={displayFields.length + (scores ? 2 : 1)} className="px-4 py-12 text-center text-muted-foreground">No records found</td></tr>)}
+            {records.length === 0 && (<tr><td colSpan={displayFields.length + (scores ? 3 : 2)} className="px-4 py-12 text-center text-muted-foreground">No records found</td></tr>)}
           </tbody>
         </table>
       </div>

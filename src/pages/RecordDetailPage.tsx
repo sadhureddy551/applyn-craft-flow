@@ -116,6 +116,9 @@ export default function RecordDetailPage() {
                 <span className="text-xs text-muted-foreground flex items-center gap-1"><User className="h-3 w-3" /> {record.createdBy}</span>
                 <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" /> {new Date(record.createdAt).toLocaleDateString()}</span>
               </div>
+              <div className="mt-2">
+                <RecordTagsManager recordId={recordId || ''} />
+              </div>
             </div>
           </div>
           <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => setDeleteOpen(true)}>
