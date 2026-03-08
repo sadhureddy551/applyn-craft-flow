@@ -11,6 +11,7 @@ import RecordDetailPage from "@/pages/RecordDetailPage";
 import TemplatesPage from "@/pages/TemplatesPage";
 import PipelinesPage from "@/pages/PipelinesPage";
 import AutomationsPage from "@/pages/AutomationsPage";
+import AutomationBuilderPage from "@/pages/AutomationBuilderPage";
 import RelationshipsPage from "@/pages/RelationshipsPage";
 import FormsPage from "@/pages/FormsPage";
 import FormBuilderPage from "@/pages/FormBuilderPage";
