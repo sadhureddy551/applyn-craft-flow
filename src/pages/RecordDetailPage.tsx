@@ -182,6 +182,7 @@ export default function RecordDetailPage() {
                 <TabsTrigger value="whatsapp" className="flex-1 rounded-none text-xs py-2.5 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary">WhatsApp</TabsTrigger>
                 <TabsTrigger value="notes" className="flex-1 rounded-none text-xs py-2.5 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary">Notes</TabsTrigger>
                 <TabsTrigger value="files" className="flex-1 rounded-none text-xs py-2.5 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary">Files</TabsTrigger>
+                <TabsTrigger value="history" className="flex-1 rounded-none text-xs py-2.5 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary">History</TabsTrigger>
               </TabsList>
               <div className="p-4">
                 <TabsContent value="activity" className="mt-0">
