@@ -17,6 +17,7 @@ import FormsPage from "@/pages/FormsPage";
 import FormBuilderPage from "@/pages/FormBuilderPage";
 import FormPreviewPage from "@/pages/FormPreviewPage";
 import PlaceholderPage from "@/pages/PlaceholderPage";
+import TasksPage from "@/pages/TasksPage";
 import ReportsPage from "@/pages/ReportsPage";
 import ReportDetailPage from "@/pages/ReportDetailPage";
 import SettingsPage from "@/pages/SettingsPage";
