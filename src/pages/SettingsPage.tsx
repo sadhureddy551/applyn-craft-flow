@@ -28,9 +28,31 @@ const PLAN_COLORS: Record<PlanTier, string> = {
 
 export default function SettingsPage() {
   const { settings, subscription, updateSettings, changePlan } = useWorkspace();
+  const { keys, loading: keysLoading, createKey, toggleKey, deleteKey } = useApiKeys();
   const { toast } = useToast();
+  const [newKeyName, setNewKeyName] = useState('');
+  const [revealedKeys, setRevealedKeys] = useState<Set<string>>(new Set());
 
   const handleSave = () => toast({ title: 'Settings saved', description: 'Workspace settings updated successfully.' });
+
+  const handleCreateKey = async () => {
+    if (!newKeyName.trim()) return;
+    const key = await createKey(newKeyName.trim());
+    if (key) {
+      setNewKeyName('');
+      setRevealedKeys((prev) => new Set([...prev, key.id]));
+      toast({ title: 'API key created', description: 'Copy your key now — it won\'t be shown in full again.' });
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({ title: 'Copied', description: 'API key copied to clipboard.' });
+  };
+
+  const maskKey = (key: string) => key.slice(0, 6) + '•'.repeat(20) + key.slice(-4);
+
+  const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/api-records`;
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
