@@ -7,12 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockModules, mockFields, mockRecords } from "@/lib/mock-data";
 import { useRecordActivities, useRecordNotes, useRecordFiles } from "@/hooks/useRecords";
+import { useLeadScores } from "@/hooks/useLeadScores";
 import { InlineEditField } from "@/components/records/InlineEditField";
 import { ActivityTimeline } from "@/components/records/ActivityTimeline";
 import { RecordNotes } from "@/components/records/RecordNotes";
 import { RecordFiles } from "@/components/records/RecordFiles";
 import { RelatedRecordsPanel } from "@/components/records/RelatedRecordsPanel";
 import { RecordDeleteDialog } from "@/components/records/RecordDeleteDialog";
+import { LeadScoreBadge } from "@/components/LeadScoreBadge";
 import { useToast } from "@/hooks/use-toast";
 
 const stageColors: Record<string, string> = {
