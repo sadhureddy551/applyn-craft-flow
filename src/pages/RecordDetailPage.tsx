@@ -206,6 +206,9 @@ export default function RecordDetailPage() {
                 <TabsContent value="files" className="mt-0">
                   <RecordFiles files={files} onAdd={addFile} onDelete={deleteFile} />
                 </TabsContent>
+                <TabsContent value="history" className="mt-0">
+                  <AuditLogTimeline logs={auditLogs} />
+                </TabsContent>
               </div>
             </Tabs>
           </div>
