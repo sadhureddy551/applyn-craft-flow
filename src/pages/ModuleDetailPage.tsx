@@ -1,29 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Plus, Filter, MoreHorizontal, Search, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Eye, Pencil, Trash2, X } from "lucide-react";
+import { ArrowLeft, Plus, Filter, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { mockModules, mockFields } from "@/lib/mock-data";
 import { useRecords } from "@/hooks/useRecords";
+import { useModuleViews } from "@/hooks/useModuleViews";
 import { RecordCreateDialog } from "@/components/records/RecordCreateDialog";
 import { RecordDeleteDialog } from "@/components/records/RecordDeleteDialog";
+import { ViewSwitcher } from "@/components/views/ViewSwitcher";
+import { TableView } from "@/components/views/TableView";
+import { KanbanView } from "@/components/views/KanbanView";
+import { CalendarView } from "@/components/views/CalendarView";
+import { ListView } from "@/components/views/ListView";
 import { useToast } from "@/hooks/use-toast";
-
-const statusColors: Record<string, string> = {
-  New: 'bg-brand-blue/10 text-brand-blue',
-  Contacted: 'bg-brand-purple/10 text-brand-purple',
-  Qualified: 'bg-accent/10 text-accent',
-  Lost: 'bg-destructive/10 text-destructive',
-  Proposal: 'bg-brand-purple/10 text-brand-purple',
-  Discovery: 'bg-brand-blue/10 text-brand-blue',
-  Negotiation: 'bg-accent/10 text-accent',
-  'Closed Won': 'bg-accent/10 text-accent',
-  'Closed Lost': 'bg-destructive/10 text-destructive',
-};
 
 export default function ModuleDetailPage() {
   const { moduleId } = useParams();
@@ -33,24 +26,36 @@ export default function ModuleDetailPage() {
   const fields = mockFields[moduleId || ''] || [];
 
   const {
-    records, totalCount, page, totalPages, setPage,
+    records, allRecords, totalCount, page, totalPages, setPage,
     search, setSearch, sortField, sortDir, toggleSort,
-    filters, setFilters, createRecord, deleteRecord,
+    filters, setFilters, createRecord, updateRecord, deleteRecord,
   } = useRecords({ moduleId: moduleId || '', pageSize: 10 });
+
+  const {
+    views, activeView, activeViewId, setActiveViewId,
+    createView, deleteView, updateViewConfig,
+  } = useModuleViews(moduleId || '');
 
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
+  // Apply saved view filters when switching views
+  useEffect(() => {
+    if (activeView?.configJSON?.filters) {
+      setFilters(activeView.configJSON.filters);
+    } else {
+      setFilters({});
+    }
+    if (activeView?.configJSON?.sortField) {
+      // Apply saved sort (handled via toggleSort would reset, so we leave as-is for now)
+    }
+  }, [activeViewId]);
+
   if (!mod) return <div className="p-6 text-muted-foreground">Module not found.</div>;
 
   const selectFields = fields.filter((f) => f.fieldType === 'select');
-  const displayFields = fields.slice(0, 5);
   const nameField = fields[0];
-
-  const getRecordName = (rec: any) => {
-    return rec.values?.[nameField?.fieldKey] || 'Untitled';
-  };
 
   const handleCreate = (values: Record<string, any>) => {
     createRecord(values);
@@ -63,6 +68,24 @@ export default function ModuleDetailPage() {
     setDeleteTarget(null);
     toast({ title: "Record deleted", description: "The record has been deleted." });
   };
+
+  const handleView = (recordId: string) => {
+    navigate(`/modules/${moduleId}/records/${recordId}`);
+  };
+
+  const handleDeletePrompt = (recordId: string, name: string) => {
+    setDeleteTarget({ id: recordId, name });
+  };
+
+  const viewType = activeView?.viewType || 'table';
+  // For kanban/calendar/list, use all filtered records (no pagination)
+  const viewRecords = viewType === 'table' ? records : allRecords.filter((r) => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return Object.values(r.values).some((v) => String(v).toLowerCase().includes(q));
+  }).filter((r) => {
+    return Object.entries(filters).every(([key, val]) => !val || String(r.values[key]) === val);
+  });
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-5">
@@ -89,6 +112,21 @@ export default function ModuleDetailPage() {
           </Button>
         </div>
       </div>
+
+      {/* View Switcher */}
+      <ViewSwitcher
+        views={views}
+        activeViewId={activeViewId}
+        onSwitch={setActiveViewId}
+        onCreate={(name, type) => {
+          createView(name, type, { filters: { ...filters } });
+          toast({ title: "View created", description: `"${name}" view has been created.` });
+        }}
+        onDelete={(viewId) => {
+          deleteView(viewId);
+          toast({ title: "View deleted" });
+        }}
+      />
 
       {/* Search + Filters */}
       <div className="flex flex-col gap-3">
@@ -119,105 +157,52 @@ export default function ModuleDetailPage() {
         )}
       </div>
 
-      {/* Table */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-xl border border-border bg-card shadow-card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border bg-muted/30">
-                {displayFields.map((f) => (
-                  <th
-                    key={f.id}
-                    className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider cursor-pointer hover:text-foreground transition-colors select-none"
-                    onClick={() => toggleSort(f.fieldKey)}
-                  >
-                    <span className="flex items-center gap-1">
-                      {f.label}
-                      {sortField === f.fieldKey && (
-                        sortDir === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
-                      )}
-                    </span>
-                  </th>
-                ))}
-                <th className="w-10" />
-              </tr>
-            </thead>
-            <tbody>
-              {records.map((rec) => (
-                <tr key={rec.id} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
-                  {displayFields.map((f) => {
-                    const val = rec.values?.[f.fieldKey];
-                    return (
-                      <td key={f.id} className="px-4 py-3 text-sm text-card-foreground">
-                        {f.fieldType === 'select' ? (
-                          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[val] || 'bg-muted text-muted-foreground'}`}>{val}</span>
-                        ) : f.fieldType === 'currency' ? (
-                          <span className="font-medium">${Number(val).toLocaleString()}</span>
-                        ) : f.fieldType === 'email' ? (
-                          <span className="text-muted-foreground">{val}</span>
-                        ) : (
-                          <span className={f.orderIndex === 0 ? 'font-medium' : ''}>{val || '—'}</span>
-                        )}
-                      </td>
-                    );
-                  })}
-                  <td className="px-2">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-7 w-7">
-                          <MoreHorizontal className="h-3.5 w-3.5" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => navigate(`/modules/${moduleId}/records/${rec.id}`)}>
-                          <Eye className="h-3.5 w-3.5 mr-2" /> View
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate(`/modules/${moduleId}/records/${rec.id}`)}>
-                          <Pencil className="h-3.5 w-3.5 mr-2" /> Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive" onClick={() => setDeleteTarget({ id: rec.id, name: getRecordName(rec) })}>
-                          <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </td>
-                </tr>
-              ))}
-              {records.length === 0 && (
-                <tr><td colSpan={displayFields.length + 1} className="px-4 py-12 text-center text-muted-foreground">No records found</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+      {/* View Content */}
+      {viewType === 'table' && (
+        <TableView
+          records={records}
+          fields={fields}
+          sortField={sortField}
+          sortDir={sortDir}
+          onSort={toggleSort}
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          onPageChange={setPage}
+          onView={handleView}
+          onDelete={handleDeletePrompt}
+          visibleColumns={activeView?.configJSON?.visibleColumns}
+          onVisibleColumnsChange={(cols) => updateViewConfig(activeViewId, { visibleColumns: cols })}
+        />
+      )}
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/20">
-            <span className="text-xs text-muted-foreground">
-              Showing {(page - 1) * 10 + 1}–{Math.min(page * 10, totalCount)} of {totalCount}
-            </span>
-            <div className="flex gap-1">
-              <Button variant="ghost" size="icon" className="h-7 w-7" disabled={page === 1} onClick={() => setPage(page - 1)}>
-                <ChevronLeft className="h-3.5 w-3.5" />
-              </Button>
-              {Array.from({ length: totalPages }, (_, i) => (
-                <Button
-                  key={i}
-                  variant={page === i + 1 ? 'default' : 'ghost'}
-                  size="icon"
-                  className="h-7 w-7 text-xs"
-                  onClick={() => setPage(i + 1)}
-                >
-                  {i + 1}
-                </Button>
-              ))}
-              <Button variant="ghost" size="icon" className="h-7 w-7" disabled={page === totalPages} onClick={() => setPage(page + 1)}>
-                <ChevronRight className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          </div>
-        )}
-      </motion.div>
+      {viewType === 'kanban' && (
+        <KanbanView
+          records={viewRecords}
+          fields={fields}
+          moduleId={moduleId || ''}
+          onView={handleView}
+          onDelete={handleDeletePrompt}
+          onUpdateRecord={updateRecord}
+        />
+      )}
+
+      {viewType === 'calendar' && (
+        <CalendarView
+          records={viewRecords}
+          fields={fields}
+          onView={handleView}
+        />
+      )}
+
+      {viewType === 'list' && (
+        <ListView
+          records={viewRecords}
+          fields={fields}
+          onView={handleView}
+          onDelete={handleDeletePrompt}
+        />
+      )}
 
       {/* Dialogs */}
       <RecordCreateDialog open={createOpen} onOpenChange={setCreateOpen} fields={fields} onSubmit={handleCreate} moduleName={mod.name} />
