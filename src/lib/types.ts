@@ -18,7 +18,7 @@ export interface Role {
   id: string;
   tenantId: string;
   name: string;
-  permissions: Record<string, boolean>;
+  permissions: { [key: string]: boolean };
 }
 
 export interface Module {
