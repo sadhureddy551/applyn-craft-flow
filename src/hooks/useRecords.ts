@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { mockRecords, mockActivities, mockNotes, mockFiles, type MockRecord, type MockNote, type MockFile } from '@/lib/mock-data';
 import { ActivityLog } from '@/lib/types';
+import { AdvancedFilter, applyAdvancedFilter, createEmptyFilter } from '@/lib/filter-types';
 
 type SortDirection = 'asc' | 'desc';
 
