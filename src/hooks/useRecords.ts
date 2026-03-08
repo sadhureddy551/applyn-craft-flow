@@ -32,12 +32,17 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
       );
     }
 
-    // Filters
+    // Simple filters (legacy)
     Object.entries(filters).forEach(([key, value]) => {
       if (value) {
         result = result.filter((r) => String(r.values[key]) === value);
       }
     });
+
+    // Advanced filters
+    if (advancedFilter.conditions.length > 0) {
+      result = result.filter((r) => applyAdvancedFilter(advancedFilter, r.values));
+    }
 
     // Sort
     if (sortField) {
@@ -52,7 +57,7 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
     }
 
     return result;
-  }, [records, search, sortField, sortDir, filters]);
+  }, [records, search, sortField, sortDir, filters, advancedFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
