@@ -378,6 +378,11 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* ROLES & PERMISSIONS */}
+        <TabsContent value="roles">
+          <RoleManagement />
+        </TabsContent>
       </Tabs>
     </div>
   );
