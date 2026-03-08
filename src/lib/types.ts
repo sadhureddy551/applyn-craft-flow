@@ -47,7 +47,7 @@ export interface Field {
   orderIndex: number;
 }
 
-export interface Record {
+export interface CrmRecord {
   id: string;
   moduleId: string;
   tenantId: string;
