@@ -206,6 +206,7 @@ export default function ModuleDetailPage() {
           fields={fields}
           onView={handleView}
           onDelete={handleDeletePrompt}
+          scores={scores}
         />
       )}
 
