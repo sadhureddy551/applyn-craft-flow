@@ -110,6 +110,9 @@ export function TableView({
                   {scores && (
                     <td className="px-4 py-3">{ls && <LeadScoreBadge score={ls.score} category={ls.category} />}</td>
                   )}
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    <RecordTagsBadges recordId={rec.id} />
+                  </td>
                   <td className="px-2" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7"><MoreHorizontal className="h-3.5 w-3.5" /></Button></DropdownMenuTrigger>
