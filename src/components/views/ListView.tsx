@@ -7,6 +7,7 @@ import { Field } from "@/lib/types";
 import { MockRecord } from "@/lib/mock-data";
 import { LeadScore } from "@/lib/lead-score-types";
 import { LeadScoreBadge } from "@/components/LeadScoreBadge";
+import { RecordTagsBadges } from "@/components/records/RecordTags";
 
 const statusColors: Record<string, string> = {
   New: 'bg-brand-blue/10 text-brand-blue', Contacted: 'bg-brand-purple/10 text-brand-purple',
@@ -55,6 +56,7 @@ export function ListView({ records, fields, onView, onDelete, scores }: ListView
                   {status && <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 ${statusColors[status] || ''}`}>{status}</Badge>}
                   {ls && <LeadScoreBadge score={ls.score} category={ls.category} />}
                 </div>
+                <RecordTagsBadges recordId={rec.id} />
                 <div className="flex flex-wrap items-center gap-3 mt-1 text-xs text-muted-foreground">
                   {company && <span className="flex items-center gap-1"><Building2 className="h-3 w-3" /> {company}</span>}
                   {email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" /> {email}</span>}

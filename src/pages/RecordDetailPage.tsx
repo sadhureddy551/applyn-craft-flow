@@ -19,6 +19,7 @@ import { WhatsAppComposer, WhatsAppHistory } from "@/components/records/RecordWh
 import { RelatedRecordsPanel } from "@/components/records/RelatedRecordsPanel";
 import { RecordDeleteDialog } from "@/components/records/RecordDeleteDialog";
 import { LeadScoreBadge } from "@/components/LeadScoreBadge";
+import { RecordTagsManager } from "@/components/records/RecordTags";
 import { useToast } from "@/hooks/use-toast";
 
 const stageColors: Record<string, string> = {
@@ -114,6 +115,9 @@ export default function RecordDetailPage() {
                 {leadScore && <LeadScoreBadge score={leadScore.score} category={leadScore.category} size="md" />}
                 <span className="text-xs text-muted-foreground flex items-center gap-1"><User className="h-3 w-3" /> {record.createdBy}</span>
                 <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" /> {new Date(record.createdAt).toLocaleDateString()}</span>
+              </div>
+              <div className="mt-2">
+                <RecordTagsManager recordId={recordId || ''} />
               </div>
             </div>
           </div>

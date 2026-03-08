@@ -10,6 +10,7 @@ import { mockPipelines } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { LeadScore } from "@/lib/lead-score-types";
 import { LeadScoreBadge } from "@/components/LeadScoreBadge";
+import { RecordTagsBadges } from "@/components/records/RecordTags";
 
 interface KanbanViewProps {
   records: MockRecord[];
@@ -97,6 +98,7 @@ export function KanbanView({ records, fields, moduleId, onView, onDelete, onUpda
                         <div className="flex items-center gap-1.5 text-xs font-medium text-foreground"><DollarSign className="h-3 w-3 text-muted-foreground" />${Number(rec.values[amountField.fieldKey]).toLocaleString()}</div>
                       )}
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><User className="h-3 w-3" /><span>{rec.createdBy}</span></div>
+                      <RecordTagsBadges recordId={rec.id} />
                     </div>
                   </motion.div>
                 );

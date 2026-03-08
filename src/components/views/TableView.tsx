@@ -7,6 +7,7 @@ import { Field } from "@/lib/types";
 import { MockRecord } from "@/lib/mock-data";
 import { LeadScore } from "@/lib/lead-score-types";
 import { LeadScoreBadge } from "@/components/LeadScoreBadge";
+import { RecordTagsBadges } from "@/components/records/RecordTags";
 
 const statusColors: Record<string, string> = {
   New: 'bg-brand-blue/10 text-brand-blue',
@@ -81,6 +82,7 @@ export function TableView({
                 </th>
               ))}
               {scores && <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Score</th>}
+              <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tags</th>
               <th className="w-10" />
             </tr>
           </thead>
@@ -108,6 +110,9 @@ export function TableView({
                   {scores && (
                     <td className="px-4 py-3">{ls && <LeadScoreBadge score={ls.score} category={ls.category} />}</td>
                   )}
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    <RecordTagsBadges recordId={rec.id} />
+                  </td>
                   <td className="px-2" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7"><MoreHorizontal className="h-3.5 w-3.5" /></Button></DropdownMenuTrigger>
@@ -121,7 +126,7 @@ export function TableView({
                 </tr>
               );
             })}
-            {records.length === 0 && (<tr><td colSpan={displayFields.length + (scores ? 2 : 1)} className="px-4 py-12 text-center text-muted-foreground">No records found</td></tr>)}
+            {records.length === 0 && (<tr><td colSpan={displayFields.length + (scores ? 3 : 2)} className="px-4 py-12 text-center text-muted-foreground">No records found</td></tr>)}
           </tbody>
         </table>
       </div>
