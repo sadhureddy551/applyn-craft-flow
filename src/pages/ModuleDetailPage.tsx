@@ -78,7 +78,8 @@ export default function ModuleDetailPage() {
       setDuplicateWarning({ duplicates, pendingValues: values });
       return;
     }
-    createRecord(values);
+    const rec = createRecord(values);
+    logChange('record', rec.id, 'create', { newValue: values[nameField?.fieldKey] || 'New record' });
     toast({ title: "Record created", description: `New ${mod.name.toLowerCase().slice(0, -1)} has been created.` });
   };
 
