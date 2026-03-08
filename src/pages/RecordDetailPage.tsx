@@ -129,9 +129,11 @@ export default function RecordDetailPage() {
               </div>
             </div>
           </div>
-          <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => setDeleteOpen(true)}>
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {canDelete && (
+            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => setDeleteOpen(true)}>
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </motion.div>
 
