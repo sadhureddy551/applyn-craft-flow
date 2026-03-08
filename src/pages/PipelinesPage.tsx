@@ -12,7 +12,7 @@ import { Pipeline, PipelineStage } from "@/lib/types";
 const DEFAULT_COLORS = ['#6366f1', '#3b82f6', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6'];
 
 export default function PipelinesPage() {
-  const [pipelines, setPipelines] = useState<Pipeline[]>(mockPipelines as Pipeline[]);
+  const [pipelines, setPipelines] = useState<Pipeline[]>(mockPipelines);
   const [activePipelineId, setActivePipelineId] = useState(pipelines[0]?.id || '');
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
