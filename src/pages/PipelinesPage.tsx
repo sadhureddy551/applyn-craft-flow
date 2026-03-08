@@ -7,20 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-
-interface PipelineStage {
-  id: string;
-  stageName: string;
-  color: string;
-  order: number;
-}
-
-interface Pipeline {
-  id: string;
-  name: string;
-  moduleId: string;
-  stages: PipelineStage[];
-}
+import { Pipeline, PipelineStage } from "@/lib/types";
 
 const DEFAULT_COLORS = ['#6366f1', '#3b82f6', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6'];
 
