@@ -19,6 +19,7 @@ import { WhatsAppComposer, WhatsAppHistory } from "@/components/records/RecordWh
 import { RelatedRecordsPanel } from "@/components/records/RelatedRecordsPanel";
 import { RecordDeleteDialog } from "@/components/records/RecordDeleteDialog";
 import { LeadScoreBadge } from "@/components/LeadScoreBadge";
+import { RecordTagsManager } from "@/components/records/RecordTags";
 import { useToast } from "@/hooks/use-toast";
 
 const stageColors: Record<string, string> = {
