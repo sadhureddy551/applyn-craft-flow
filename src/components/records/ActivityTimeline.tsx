@@ -1,13 +1,15 @@
 import { format } from "date-fns";
-import { GitBranch, Plus, Edit3, ArrowUpRight, ArrowDownLeft, MessageCircle } from "lucide-react";
+import { GitBranch, Plus, Edit3, ArrowUpRight, ArrowDownLeft, MessageCircle, StickyNote } from "lucide-react";
 import { ActivityLog } from "@/lib/types";
 import { Email } from "@/lib/email-types";
 import { WhatsAppMessage } from "@/lib/whatsapp-types";
+import { MockNote } from "@/lib/mock-data";
 
 type TimelineItem =
   | { kind: 'activity'; data: ActivityLog; date: Date }
   | { kind: 'email'; data: Email; date: Date }
-  | { kind: 'whatsapp'; data: WhatsAppMessage; date: Date };
+  | { kind: 'whatsapp'; data: WhatsAppMessage; date: Date }
+  | { kind: 'note'; data: MockNote; date: Date };
 
 const typeConfig: Record<string, { icon: typeof Plus; color: string }> = {
   record_created: { icon: Plus, color: 'text-accent' },
@@ -19,13 +21,15 @@ interface ActivityTimelineProps {
   activities: ActivityLog[];
   emails?: Email[];
   whatsAppMessages?: WhatsAppMessage[];
+  notes?: MockNote[];
 }
 
-export function ActivityTimeline({ activities, emails = [], whatsAppMessages = [] }: ActivityTimelineProps) {
+export function ActivityTimeline({ activities, emails = [], whatsAppMessages = [], notes = [] }: ActivityTimelineProps) {
   const items: TimelineItem[] = [
     ...activities.map((a) => ({ kind: 'activity' as const, data: a, date: new Date(a.createdAt) })),
     ...emails.map((e) => ({ kind: 'email' as const, data: e, date: new Date(e.sentAt) })),
     ...whatsAppMessages.map((m) => ({ kind: 'whatsapp' as const, data: m, date: new Date(m.sentAt) })),
+    ...notes.map((n) => ({ kind: 'note' as const, data: n, date: new Date(n.createdAt) })),
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
 
   if (items.length === 0) {
@@ -35,6 +39,28 @@ export function ActivityTimeline({ activities, emails = [], whatsAppMessages = [
   return (
     <div className="space-y-0">
       {items.map((item, i) => {
+        if (item.kind === 'note') {
+          const note = item.data;
+          return (
+            <div key={note.id} className="flex gap-3 py-2.5">
+              <div className="flex flex-col items-center">
+                <div className="h-6 w-6 rounded-full bg-[hsl(38,92%,50%)]/10 flex items-center justify-center shrink-0">
+                  <StickyNote className="h-3 w-3 text-[hsl(38,92%,50%)]" />
+                </div>
+                {i < items.length - 1 && <div className="w-px flex-1 bg-border mt-1" />}
+              </div>
+              <div className="flex-1 min-w-0 pb-1">
+                <p className="text-sm text-foreground line-clamp-2">{note.content}</p>
+                <div className="flex gap-2 text-xs text-muted-foreground mt-0.5">
+                  <span>{note.createdBy}</span>
+                  <span>·</span>
+                  <span>{format(item.date, 'MMM d, h:mm a')}</span>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
         if (item.kind === 'email') {
           const email = item.data;
           const isSent = email.direction === 'sent';
