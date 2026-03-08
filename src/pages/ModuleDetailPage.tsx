@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { mockModules, mockFields } from "@/lib/mock-data";
 import { useRecords } from "@/hooks/useRecords";
 import { useModuleViews } from "@/hooks/useModuleViews";
+import { useLeadScores } from "@/hooks/useLeadScores";
 import { RecordCreateDialog } from "@/components/records/RecordCreateDialog";
 import { RecordDeleteDialog } from "@/components/records/RecordDeleteDialog";
 import { ViewSwitcher } from "@/components/views/ViewSwitcher";
@@ -39,6 +40,8 @@ export default function ModuleDetailPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+
+  const scores = useLeadScores(allRecords);
 
   // Apply saved view filters when switching views
   useEffect(() => {
@@ -173,6 +176,7 @@ export default function ModuleDetailPage() {
           onDelete={handleDeletePrompt}
           visibleColumns={activeView?.configJSON?.visibleColumns}
           onVisibleColumnsChange={(cols) => updateViewConfig(activeViewId, { visibleColumns: cols })}
+          scores={scores}
         />
       )}
 
@@ -184,6 +188,7 @@ export default function ModuleDetailPage() {
           onView={handleView}
           onDelete={handleDeletePrompt}
           onUpdateRecord={updateRecord}
+          scores={scores}
         />
       )}
 
@@ -201,6 +206,7 @@ export default function ModuleDetailPage() {
           fields={fields}
           onView={handleView}
           onDelete={handleDeletePrompt}
+          scores={scores}
         />
       )}
 

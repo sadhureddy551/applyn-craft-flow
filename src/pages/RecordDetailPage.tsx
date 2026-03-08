@@ -7,12 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockModules, mockFields, mockRecords } from "@/lib/mock-data";
 import { useRecordActivities, useRecordNotes, useRecordFiles } from "@/hooks/useRecords";
+import { useLeadScores } from "@/hooks/useLeadScores";
 import { InlineEditField } from "@/components/records/InlineEditField";
 import { ActivityTimeline } from "@/components/records/ActivityTimeline";
 import { RecordNotes } from "@/components/records/RecordNotes";
 import { RecordFiles } from "@/components/records/RecordFiles";
 import { RelatedRecordsPanel } from "@/components/records/RelatedRecordsPanel";
 import { RecordDeleteDialog } from "@/components/records/RecordDeleteDialog";
+import { LeadScoreBadge } from "@/components/LeadScoreBadge";
 import { useToast } from "@/hooks/use-toast";
 
 const stageColors: Record<string, string> = {
@@ -41,6 +43,9 @@ export default function RecordDetailPage() {
 
   const [values, setValues] = useState<Record<string, any>>(record?.values || {});
   const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const scores = useLeadScores(allRecords);
+  const leadScore = record ? scores.get(record.id) : undefined;
 
   if (!mod || !record) {
     return (
@@ -100,6 +105,7 @@ export default function RecordDetailPage() {
               </div>
               <div className="flex items-center gap-2 mt-2">
                 {stage && <Badge variant="outline" className={`text-xs ${stageColors[stage] || 'bg-muted text-muted-foreground'}`}>{stage}</Badge>}
+                {leadScore && <LeadScoreBadge score={leadScore.score} category={leadScore.category} size="md" />}
                 <span className="text-xs text-muted-foreground flex items-center gap-1"><User className="h-3 w-3" /> {record.createdBy}</span>
                 <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" /> {new Date(record.createdAt).toLocaleDateString()}</span>
               </div>
