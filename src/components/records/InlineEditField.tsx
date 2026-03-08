@@ -49,6 +49,14 @@ export function InlineEditField({ field, value, onSave, disabled = false }: Inli
     return <span>{String(value)}</span>;
   };
 
+  if (disabled) {
+    return (
+      <div className="flex items-center gap-2 rounded-md px-2 py-1.5 -mx-2">
+        <div className="flex-1 text-sm">{displayValue()}</div>
+      </div>
+    );
+  }
+
   if (editing) {
     return (
       <div className="space-y-2">

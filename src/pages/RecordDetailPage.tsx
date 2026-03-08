@@ -147,7 +147,7 @@ export default function RecordDetailPage() {
                 {contactFields.map((f) => (
                   <div key={f.id} className="py-1">
                     <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{f.label}</label>
-                    <InlineEditField field={f} value={values[f.fieldKey]} onSave={handleFieldSave} />
+                    <InlineEditField field={f} value={values[f.fieldKey]} onSave={handleFieldSave} disabled={!canEdit} />
                   </div>
                 ))}
               </div>
