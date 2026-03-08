@@ -1,3 +1,5 @@
+import { AdvancedFilter } from './filter-types';
+
 export type ViewType = 'table' | 'kanban' | 'calendar' | 'list';
 
 export interface ModuleView {
@@ -8,6 +10,7 @@ export interface ModuleView {
   viewType: ViewType;
   configJSON: {
     filters?: Record<string, string>;
+    advancedFilter?: AdvancedFilter;
     sortField?: string;
     sortDir?: 'asc' | 'desc';
     visibleColumns?: string[];
