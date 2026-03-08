@@ -58,11 +58,6 @@ export default function ModulesPage() {
 
   const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    const mod = modules.find(m => m.id === id);
-    if (mod?.isSystem) {
-      toast.error("Cannot delete system modules");
-      return;
-    }
     setModules(modules.filter(m => m.id !== id));
     toast.success("Module deleted");
   };
