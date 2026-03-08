@@ -37,6 +37,11 @@ const mainNav = [
   { title: "Relationships", url: "/relationships", icon: Link2 },
 ];
 
+const commNav = [
+  { title: "Email", url: "/email", icon: Mail },
+  { title: "WhatsApp", url: "/whatsapp", icon: MessageCircle },
+];
+
 const workNav = [
   { title: "Tasks", url: "/tasks", icon: CheckSquare },
   { title: "Automations", url: "/automations", icon: Zap },
@@ -44,7 +49,9 @@ const workNav = [
   { title: "Reports", url: "/reports", icon: BarChart3 },
 ];
 
-const bottomNav: typeof mainNav = [];
+const bottomNav = [
+  { title: "Integrations", url: "/integrations", icon: Plug },
+];
 
 export function AppSidebar() {
   const { state } = useSidebar();
