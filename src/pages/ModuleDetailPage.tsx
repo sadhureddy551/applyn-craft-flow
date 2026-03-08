@@ -176,6 +176,7 @@ export default function ModuleDetailPage() {
           onDelete={handleDeletePrompt}
           visibleColumns={activeView?.configJSON?.visibleColumns}
           onVisibleColumnsChange={(cols) => updateViewConfig(activeViewId, { visibleColumns: cols })}
+          scores={scores}
         />
       )}
 
@@ -187,6 +188,7 @@ export default function ModuleDetailPage() {
           onView={handleView}
           onDelete={handleDeletePrompt}
           onUpdateRecord={updateRecord}
+          scores={scores}
         />
       )}
 
