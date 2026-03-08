@@ -7,6 +7,7 @@ import { Field } from "@/lib/types";
 import { MockRecord } from "@/lib/mock-data";
 import { LeadScore } from "@/lib/lead-score-types";
 import { LeadScoreBadge } from "@/components/LeadScoreBadge";
+import { RecordTagsBadges } from "@/components/records/RecordTags";
 
 const statusColors: Record<string, string> = {
   New: 'bg-brand-blue/10 text-brand-blue',
