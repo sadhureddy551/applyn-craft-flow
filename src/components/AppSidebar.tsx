@@ -44,9 +44,7 @@ const workNav = [
   { title: "Reports", url: "/reports", icon: BarChart3 },
 ];
 
-const bottomNav = [
-  { title: "Settings", url: "/settings", icon: Settings },
-];
+const bottomNav: typeof mainNav = [];
 
 export function AppSidebar() {
   const { state } = useSidebar();
