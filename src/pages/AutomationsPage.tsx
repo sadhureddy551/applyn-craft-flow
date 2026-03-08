@@ -1,14 +1,46 @@
-import { motion } from "framer-motion";
-import { Zap, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-
-const placeholderItems = [
-  { title: "Auto-assign new leads", trigger: "record_created", module: "Leads", active: true },
-  { title: "Notify on stage change", trigger: "stage_changed", module: "Leads", active: true },
-  { title: "Send welcome email", trigger: "record_created", module: "Contacts", active: false },
-];
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Zap, Plus, Trash2, Play, Pause, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useAutomations } from '@/hooks/useAutomations';
+import { mockModules } from '@/lib/mock-data';
+import { AutomationTriggerType, TRIGGER_LABELS } from '@/lib/automation-types';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AutomationsPage() {
+  const { automations, createAutomation, deleteAutomation, toggleActive } = useAutomations();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [moduleId, setModuleId] = useState('');
+  const [triggerType, setTriggerType] = useState<AutomationTriggerType>('record_created');
+
+  const handleCreate = () => {
+    if (!name || !moduleId) return;
+    const auto = createAutomation({
+      name,
+      moduleId,
+      triggerType,
+      conditionsJSON: [],
+      actionsJSON: [],
+      isActive: true,
+    });
+    toast({ title: 'Automation created', description: `"${name}" is ready to configure.` });
+    setOpen(false);
+    setName('');
+    setModuleId('');
+    navigate(`/automations/${auto.id}`);
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -16,28 +48,83 @@ export default function AutomationsPage() {
           <h1 className="text-2xl font-bold text-foreground">Automations</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Create workflow rules to automate your CRM</p>
         </div>
-        <Button className="gradient-brand text-primary-foreground shadow-brand hover:opacity-90">
-          <Plus className="h-4 w-4 mr-2" /> New Automation
-        </Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button className="gradient-brand text-primary-foreground shadow-brand hover:opacity-90">
+              <Plus className="h-4 w-4 mr-2" />New Automation
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader><DialogTitle>Create Automation</DialogTitle></DialogHeader>
+            <div className="space-y-4 pt-2">
+              <div><Label>Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Auto-assign new leads" /></div>
+              <div>
+                <Label>Module</Label>
+                <Select value={moduleId} onValueChange={setModuleId}>
+                  <SelectTrigger><SelectValue placeholder="Select module" /></SelectTrigger>
+                  <SelectContent>{mockModules.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Trigger</Label>
+                <Select value={triggerType} onValueChange={(v) => setTriggerType(v as AutomationTriggerType)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(TRIGGER_LABELS).map(([k, v]) => (
+                      <SelectItem key={k} value={k}>{v}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button onClick={handleCreate} disabled={!name || !moduleId} className="w-full gradient-brand text-primary-foreground">Create & Configure</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      <div className="space-y-3">
-        {placeholderItems.map((item, i) => (
-          <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-            className="rounded-xl border border-border bg-card p-4 shadow-card flex items-center gap-4">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Zap className="h-5 w-5 text-primary" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-card-foreground">{item.title}</p>
-              <p className="text-xs text-muted-foreground">Trigger: {item.trigger} · Module: {item.module}</p>
-            </div>
-            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${item.active ? 'bg-accent/10 text-accent' : 'bg-muted text-muted-foreground'}`}>
-              {item.active ? 'Active' : 'Inactive'}
-            </span>
-          </motion.div>
-        ))}
-      </div>
+      {automations.length === 0 ? (
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <Zap className="h-12 w-12 text-muted-foreground/50 mb-3" />
+            <p className="text-muted-foreground">No automations yet</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {automations.map((auto, i) => {
+            const mod = mockModules.find(m => m.id === auto.moduleId);
+            return (
+              <motion.div key={auto.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                <Card className="shadow-card hover:shadow-card-hover transition-shadow cursor-pointer group" onClick={() => navigate(`/automations/${auto.id}`)}>
+                  <CardContent className="p-4 flex items-center gap-4">
+                    <div className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${auto.isActive ? 'bg-primary/10' : 'bg-muted'}`}>
+                      <Zap className={`h-5 w-5 ${auto.isActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-card-foreground">{auto.name}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="secondary" className="text-[10px]">{TRIGGER_LABELS[auto.triggerType]}</Badge>
+                        <span className="text-xs text-muted-foreground">{mod?.name}</span>
+                        <span className="text-xs text-muted-foreground">·</span>
+                        <span className="text-xs text-muted-foreground">{auto.conditionsJSON.length} condition{auto.conditionsJSON.length !== 1 ? 's' : ''}</span>
+                        <span className="text-xs text-muted-foreground">·</span>
+                        <span className="text-xs text-muted-foreground">{auto.actionsJSON.length} action{auto.actionsJSON.length !== 1 ? 's' : ''}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                      <Switch checked={auto.isActive} onCheckedChange={() => toggleActive(auto.id)} />
+                      <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => { deleteAutomation(auto.id); toast({ title: 'Automation deleted' }); }}>
+                        <Trash2 className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
