@@ -31,6 +31,8 @@ export default function ModuleDetailPage() {
   const { toast } = useToast();
   const mod = mockModules.find((m) => m.id === moduleId);
   const fields = mockFields[moduleId || ''] || [];
+  const moduleSlug = mod?.slug || '';
+  const { hasPermission } = usePermission();
 
   const {
     records, allRecords, totalCount, page, totalPages, setPage,
