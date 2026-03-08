@@ -33,7 +33,8 @@ export default function ModuleDetailPage() {
   const {
     records, allRecords, totalCount, page, totalPages, setPage,
     search, setSearch, sortField, sortDir, toggleSort,
-    filters, setFilters, createRecord, updateRecord, deleteRecord,
+    filters, setFilters, advancedFilter, setAdvancedFilter,
+    createRecord, updateRecord, deleteRecord,
   } = useRecords({ moduleId: moduleId || '', pageSize: 10 });
 
   const {
