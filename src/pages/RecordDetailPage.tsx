@@ -37,6 +37,10 @@ export default function RecordDetailPage() {
   const { toast } = useToast();
 
   const mod = mockModules.find((m) => m.id === moduleId);
+  const moduleSlug = mod?.slug || '';
+  const { hasPermission } = usePermission();
+  const canEdit = hasPermission(moduleSlug, 'edit');
+  const canDelete = hasPermission(moduleSlug, 'delete');
   const fields = mockFields[moduleId || ''] || [];
   const allRecords = mockRecords[moduleId || ''] || [];
   const record = allRecords.find((r) => r.id === recordId);
