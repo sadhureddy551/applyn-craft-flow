@@ -65,8 +65,40 @@ export default function ModuleDetailPage() {
   const nameField = fields[0];
 
   const handleCreate = (values: Record<string, any>) => {
+    const duplicates = findDuplicates(values);
+    if (duplicates.length > 0) {
+      setCreateOpen(false);
+      setDuplicateWarning({ duplicates, pendingValues: values });
+      return;
+    }
     createRecord(values);
     toast({ title: "Record created", description: `New ${mod.name.toLowerCase().slice(0, -1)} has been created.` });
+  };
+
+  const handleIgnoreDuplicate = () => {
+    if (!duplicateWarning) return;
+    createRecord(duplicateWarning.pendingValues);
+    setDuplicateWarning(null);
+    toast({ title: "Record created", description: "Record created (duplicate ignored)." });
+  };
+
+  const handleMerge = (targetRecordId: string) => {
+    if (!duplicateWarning) return;
+    // Merge: update existing record with non-empty new values
+    const mergedValues: Record<string, any> = {};
+    for (const [key, val] of Object.entries(duplicateWarning.pendingValues)) {
+      if (val !== undefined && val !== '' && val !== null) {
+        mergedValues[key] = val;
+      }
+    }
+    updateRecord(targetRecordId, mergedValues);
+    setDuplicateWarning(null);
+    toast({ title: "Records merged", description: "New data has been merged into the existing record." });
+  };
+
+  const handleViewDuplicate = (recordId: string) => {
+    setDuplicateWarning(null);
+    navigate(`/modules/${moduleId}/records/${recordId}`);
   };
 
   const handleDelete = () => {
