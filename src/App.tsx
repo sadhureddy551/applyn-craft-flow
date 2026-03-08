@@ -35,6 +35,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <PermissionProvider>
         <AppLayout>
           <Routes>
             <Route path="/" element={<Dashboard />} />
