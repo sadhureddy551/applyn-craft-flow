@@ -19,6 +19,7 @@ import { RecordTagsManager } from "@/components/records/RecordTags";
 import { AuditLogTimeline } from "@/components/records/AuditLogTimeline";
 import { useAuditLogs } from "@/hooks/useAuditLogs";
 import { useToast } from "@/hooks/use-toast";
+import { usePermission } from "@/components/PermissionProvider";
 
 const stageColors: Record<string, string> = {
   New: 'bg-brand-blue/10 text-brand-blue border-brand-blue/20',
