@@ -43,8 +43,6 @@ export default function RecordDetailPage() {
   const { activities, addActivity } = useRecordActivities(recordId || '');
   const { notes, addNote, deleteNote } = useRecordNotes(recordId || '');
   const { files, addFile, deleteFile } = useRecordFiles(recordId || '');
-  const { emails, sendEmail } = useEmails(recordId || '');
-  const { messages: waMessages, sendMessage: sendWhatsApp } = useWhatsApp(recordId || '');
 
   const [values, setValues] = useState<Record<string, any>>(record?.values || {});
   const [deleteOpen, setDeleteOpen] = useState(false);
