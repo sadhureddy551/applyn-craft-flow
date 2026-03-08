@@ -7,11 +7,13 @@ import {
   Zap,
   FileText,
   BarChart3,
-  Settings,
   ChevronDown,
   Link2,
   LogOut,
   User,
+  Mail,
+  MessageCircle,
+  Plug,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -37,6 +39,11 @@ const mainNav = [
   { title: "Relationships", url: "/relationships", icon: Link2 },
 ];
 
+const commNav = [
+  { title: "Email", url: "/email", icon: Mail },
+  { title: "WhatsApp", url: "/whatsapp", icon: MessageCircle },
+];
+
 const workNav = [
   { title: "Tasks", url: "/tasks", icon: CheckSquare },
   { title: "Automations", url: "/automations", icon: Zap },
@@ -44,7 +51,9 @@ const workNav = [
   { title: "Reports", url: "/reports", icon: BarChart3 },
 ];
 
-const bottomNav: typeof mainNav = [];
+const bottomNav = [
+  { title: "Integrations", url: "/integrations", icon: Plug },
+];
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -94,6 +103,17 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>{renderNavItems(mainNav)}</SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <div className="mx-3 my-2 h-px bg-sidebar-border" />
+
+        <SidebarGroup>
+          {!collapsed && (
+            <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wider">Communication</p>
+          )}
+          <SidebarGroupContent>
+            <SidebarMenu>{renderNavItems(commNav)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 

@@ -18,6 +18,9 @@ import FormBuilderPage from "@/pages/FormBuilderPage";
 import FormPreviewPage from "@/pages/FormPreviewPage";
 import PlaceholderPage from "@/pages/PlaceholderPage";
 import TasksPage from "@/pages/TasksPage";
+import EmailPage from "@/pages/EmailPage";
+import WhatsAppPage from "@/pages/WhatsAppPage";
+import IntegrationsPage from "@/pages/IntegrationsPage";
 import ReportsPage from "@/pages/ReportsPage";
 import ReportDetailPage from "@/pages/ReportDetailPage";
 import SettingsPage from "@/pages/SettingsPage";
@@ -47,6 +50,9 @@ const App = () => (
             <Route path="/forms/:formId/preview" element={<FormPreviewPage />} />
             <Route path="/form/:formId" element={<FormPreviewPage />} />
             <Route path="/tasks" element={<TasksPage />} />
+            <Route path="/email" element={<EmailPage />} />
+            <Route path="/whatsapp" element={<WhatsAppPage />} />
+            <Route path="/integrations" element={<IntegrationsPage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/reports/:reportId" element={<ReportDetailPage />} />
             <Route path="/settings" element={<SettingsPage />} />
