@@ -16,6 +16,7 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
   const [sortField, setSortField] = useState<string>('');
   const [sortDir, setSortDir] = useState<SortDirection>('asc');
   const [filters, setFilters] = useState<Record<string, string>>({});
+  const [advancedFilter, setAdvancedFilter] = useState<AdvancedFilter>(createEmptyFilter());
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
