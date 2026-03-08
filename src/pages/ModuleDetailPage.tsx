@@ -145,9 +145,9 @@ export default function ModuleDetailPage() {
         <div className="ml-auto flex gap-2">
           <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
             <Filter className="h-3.5 w-3.5 mr-1.5" /> Filter
-            {Object.values(filters).filter(Boolean).length > 0 && (
+            {advancedFilter.conditions.length > 0 && (
               <Badge variant="secondary" className="ml-1.5 h-4 px-1 text-[10px]">
-                {Object.values(filters).filter(Boolean).length}
+                {advancedFilter.conditions.length}
               </Badge>
             )}
           </Button>
