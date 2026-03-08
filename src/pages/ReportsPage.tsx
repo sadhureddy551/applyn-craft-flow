@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart3, Plus, Trash2, Edit, PieChart, LineChart, Table2, Calendar, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
