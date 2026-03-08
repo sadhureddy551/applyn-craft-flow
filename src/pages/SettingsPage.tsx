@@ -150,6 +150,142 @@ export default function SettingsPage() {
           <div className="flex justify-end"><Button onClick={handleSave} className="gradient-brand text-primary-foreground">Save Changes</Button></div>
         </TabsContent>
 
+        {/* API */}
+        <TabsContent value="api" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">API Keys</CardTitle>
+              <CardDescription>Manage API keys for external integrations. Keys authenticate requests to the REST API.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  value={newKeyName}
+                  onChange={(e) => setNewKeyName(e.target.value)}
+                  placeholder="Key name (e.g. Zapier, Website)"
+                  className="flex-1"
+                  onKeyDown={(e) => e.key === 'Enter' && handleCreateKey()}
+                />
+                <Button onClick={handleCreateKey} disabled={!newKeyName.trim()} className="gradient-brand text-primary-foreground">
+                  <Plus className="h-4 w-4 mr-1.5" /> Create Key
+                </Button>
+              </div>
+
+              <Separator />
+
+              {keysLoading ? (
+                <p className="text-sm text-muted-foreground text-center py-4">Loading keys...</p>
+              ) : keys.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">No API keys yet. Create one to get started.</p>
+              ) : (
+                <div className="space-y-3">
+                  {keys.map((k) => {
+                    const revealed = revealedKeys.has(k.id);
+                    return (
+                      <div key={k.id} className="rounded-lg border border-border p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Key className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm font-medium text-foreground">{k.key_name}</span>
+                            <Badge variant={k.is_active ? 'default' : 'secondary'} className="text-[10px]">
+                              {k.is_active ? 'Active' : 'Inactive'}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Switch checked={k.is_active} onCheckedChange={(v) => toggleKey(k.id, v)} />
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteKey(k.id)}>
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <code className="flex-1 text-xs bg-muted px-3 py-1.5 rounded-md font-mono text-foreground">
+                            {revealed ? k.api_key : maskKey(k.api_key)}
+                          </code>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setRevealedKeys((prev) => {
+                            const next = new Set(prev);
+                            revealed ? next.delete(k.id) : next.add(k.id);
+                            return next;
+                          })}>
+                            {revealed ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => copyToClipboard(k.api_key)}>
+                            <Copy className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                        <div className="flex gap-4 text-[10px] text-muted-foreground">
+                          <span>Created: {format(new Date(k.created_at), 'MMM d, yyyy')}</span>
+                          {k.last_used_at && <span>Last used: {format(new Date(k.last_used_at), 'MMM d, h:mm a')}</span>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">API Documentation</CardTitle>
+              <CardDescription>Use these endpoints to integrate with external systems</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="rounded-lg bg-muted/50 p-4 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-accent text-accent-foreground text-[10px]">GET</Badge>
+                    <code className="text-xs font-mono text-foreground">/api-records</code>
+                  </div>
+                  <p className="text-xs text-muted-foreground">List records. Query params: <code>module_id</code>, <code>limit</code>, <code>offset</code></p>
+                </div>
+                <div className="rounded-lg bg-muted/50 p-4 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-brand-blue text-primary-foreground text-[10px]">POST</Badge>
+                    <code className="text-xs font-mono text-foreground">/api-records</code>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Create record. Body: <code>{`{ "module_id": "1", "values": {...} }`}</code></p>
+                </div>
+                <div className="rounded-lg bg-muted/50 p-4 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-brand-purple text-primary-foreground text-[10px]">PUT</Badge>
+                    <code className="text-xs font-mono text-foreground">/api-records/:id</code>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Update record. Body: <code>{`{ "values": {...} }`}</code></p>
+                </div>
+                <div className="rounded-lg bg-muted/50 p-4 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="destructive" className="text-[10px]">DELETE</Badge>
+                    <code className="text-xs font-mono text-foreground">/api-records/:id</code>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Delete a record by ID</p>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div>
+                <Label className="text-xs font-semibold">Base URL</Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <code className="flex-1 text-xs bg-muted px-3 py-2 rounded-md font-mono text-foreground break-all">{baseUrl}</code>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => copyToClipboard(baseUrl)}>
+                    <Copy className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-xs font-semibold">Authentication</Label>
+                <p className="text-xs text-muted-foreground mt-1">Include your API key in the <code>X-API-Key</code> header with every request.</p>
+                <div className="mt-2 rounded-lg bg-muted/50 p-3">
+                  <code className="text-xs font-mono text-foreground whitespace-pre">{`curl ${baseUrl} \\
+  -H "X-API-Key: your_api_key_here"`}</code>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* BILLING */}
         <TabsContent value="billing" className="space-y-6">
           <Card>
