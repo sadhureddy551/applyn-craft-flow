@@ -135,11 +135,9 @@ export default function ModulesPage() {
                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEdit(mod.id)}>
                       <Edit className="h-3.5 w-3.5 text-muted-foreground" />
                     </Button>
-                    {!mod.isSystem && (
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => handleDelete(mod.id, e)}>
-                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                      </Button>
-                    )}
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => handleDelete(mod.id, e)}>
+                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                    </Button>
                   </div>
                 </div>
               </div>
