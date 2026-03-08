@@ -12,6 +12,8 @@ import { useModuleViews } from "@/hooks/useModuleViews";
 import { useLeadScores } from "@/hooks/useLeadScores";
 import { RecordCreateDialog } from "@/components/records/RecordCreateDialog";
 import { RecordDeleteDialog } from "@/components/records/RecordDeleteDialog";
+import { DuplicateWarningDialog, DuplicateMatch } from "@/components/records/DuplicateWarningDialog";
+import { useDuplicateDetection } from "@/hooks/useDuplicateDetection";
 import { ViewSwitcher } from "@/components/views/ViewSwitcher";
 import { TableView } from "@/components/views/TableView";
 import { KanbanView } from "@/components/views/KanbanView";
@@ -40,8 +42,10 @@ export default function ModuleDetailPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [duplicateWarning, setDuplicateWarning] = useState<{ duplicates: DuplicateMatch[]; pendingValues: Record<string, any> } | null>(null);
 
   const scores = useLeadScores(allRecords);
+  const { findDuplicates } = useDuplicateDetection(allRecords, fields);
 
   // Apply saved view filters when switching views
   useEffect(() => {
@@ -61,8 +65,40 @@ export default function ModuleDetailPage() {
   const nameField = fields[0];
 
   const handleCreate = (values: Record<string, any>) => {
+    const duplicates = findDuplicates(values);
+    if (duplicates.length > 0) {
+      setCreateOpen(false);
+      setDuplicateWarning({ duplicates, pendingValues: values });
+      return;
+    }
     createRecord(values);
     toast({ title: "Record created", description: `New ${mod.name.toLowerCase().slice(0, -1)} has been created.` });
+  };
+
+  const handleIgnoreDuplicate = () => {
+    if (!duplicateWarning) return;
+    createRecord(duplicateWarning.pendingValues);
+    setDuplicateWarning(null);
+    toast({ title: "Record created", description: "Record created (duplicate ignored)." });
+  };
+
+  const handleMerge = (targetRecordId: string) => {
+    if (!duplicateWarning) return;
+    // Merge: update existing record with non-empty new values
+    const mergedValues: Record<string, any> = {};
+    for (const [key, val] of Object.entries(duplicateWarning.pendingValues)) {
+      if (val !== undefined && val !== '' && val !== null) {
+        mergedValues[key] = val;
+      }
+    }
+    updateRecord(targetRecordId, mergedValues);
+    setDuplicateWarning(null);
+    toast({ title: "Records merged", description: "New data has been merged into the existing record." });
+  };
+
+  const handleViewDuplicate = (recordId: string) => {
+    setDuplicateWarning(null);
+    navigate(`/modules/${moduleId}/records/${recordId}`);
   };
 
   const handleDelete = () => {
@@ -214,6 +250,18 @@ export default function ModuleDetailPage() {
       <RecordCreateDialog open={createOpen} onOpenChange={setCreateOpen} fields={fields} onSubmit={handleCreate} moduleName={mod.name} />
       {deleteTarget && (
         <RecordDeleteDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)} recordName={deleteTarget.name} onConfirm={handleDelete} />
+      )}
+      {duplicateWarning && (
+        <DuplicateWarningDialog
+          open={!!duplicateWarning}
+          onOpenChange={(open) => !open && setDuplicateWarning(null)}
+          duplicates={duplicateWarning.duplicates}
+          fields={fields}
+          newValues={duplicateWarning.pendingValues}
+          onIgnore={handleIgnoreDuplicate}
+          onViewDuplicate={handleViewDuplicate}
+          onMerge={handleMerge}
+        />
       )}
     </div>
   );
