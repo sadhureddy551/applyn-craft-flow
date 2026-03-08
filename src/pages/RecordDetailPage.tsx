@@ -44,6 +44,9 @@ export default function RecordDetailPage() {
   const [values, setValues] = useState<Record<string, any>>(record?.values || {});
   const [deleteOpen, setDeleteOpen] = useState(false);
 
+  const scores = useLeadScores(allRecords);
+  const leadScore = record ? scores.get(record.id) : undefined;
+
   if (!mod || !record) {
     return (
       <div className="p-6 text-center">
