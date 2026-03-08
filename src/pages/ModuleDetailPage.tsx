@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Plus, Filter, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,8 @@ import { TableView } from "@/components/views/TableView";
 import { KanbanView } from "@/components/views/KanbanView";
 import { CalendarView } from "@/components/views/CalendarView";
 import { ListView } from "@/components/views/ListView";
+import { AdvancedFilterBuilder } from "@/components/views/AdvancedFilterBuilder";
+import { createEmptyFilter } from "@/lib/filter-types";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ModuleDetailPage() {
