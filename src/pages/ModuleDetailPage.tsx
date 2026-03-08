@@ -21,6 +21,7 @@ import { CalendarView } from "@/components/views/CalendarView";
 import { ListView } from "@/components/views/ListView";
 import { AdvancedFilterBuilder } from "@/components/views/AdvancedFilterBuilder";
 import { createEmptyFilter, applyAdvancedFilter } from "@/lib/filter-types";
+import { useAuditLogs } from "@/hooks/useAuditLogs";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ModuleDetailPage() {
