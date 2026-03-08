@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { mockRecords, mockActivities, mockNotes, mockFiles, type MockRecord, type MockNote, type MockFile } from '@/lib/mock-data';
 import { ActivityLog } from '@/lib/types';
+import { AdvancedFilter, applyAdvancedFilter, createEmptyFilter } from '@/lib/filter-types';
 
 type SortDirection = 'asc' | 'desc';
 
@@ -15,6 +16,7 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
   const [sortField, setSortField] = useState<string>('');
   const [sortDir, setSortDir] = useState<SortDirection>('asc');
   const [filters, setFilters] = useState<Record<string, string>>({});
+  const [advancedFilter, setAdvancedFilter] = useState<AdvancedFilter>(createEmptyFilter());
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
@@ -30,12 +32,17 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
       );
     }
 
-    // Filters
+    // Simple filters (legacy)
     Object.entries(filters).forEach(([key, value]) => {
       if (value) {
         result = result.filter((r) => String(r.values[key]) === value);
       }
     });
+
+    // Advanced filters
+    if (advancedFilter.conditions.length > 0) {
+      result = result.filter((r) => applyAdvancedFilter(advancedFilter, r.values));
+    }
 
     // Sort
     if (sortField) {
@@ -50,7 +57,7 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
     }
 
     return result;
-  }, [records, search, sortField, sortDir, filters]);
+  }, [records, search, sortField, sortDir, filters, advancedFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
@@ -110,6 +117,8 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
     toggleSort,
     filters,
     setFilters,
+    advancedFilter,
+    setAdvancedFilter,
     createRecord,
     updateRecord,
     deleteRecord,

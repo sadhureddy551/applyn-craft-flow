@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Plus, Filter, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,8 @@ import { TableView } from "@/components/views/TableView";
 import { KanbanView } from "@/components/views/KanbanView";
 import { CalendarView } from "@/components/views/CalendarView";
 import { ListView } from "@/components/views/ListView";
+import { AdvancedFilterBuilder } from "@/components/views/AdvancedFilterBuilder";
+import { createEmptyFilter, applyAdvancedFilter } from "@/lib/filter-types";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ModuleDetailPage() {
@@ -31,7 +33,8 @@ export default function ModuleDetailPage() {
   const {
     records, allRecords, totalCount, page, totalPages, setPage,
     search, setSearch, sortField, sortDir, toggleSort,
-    filters, setFilters, createRecord, updateRecord, deleteRecord,
+    filters, setFilters, advancedFilter, setAdvancedFilter,
+    createRecord, updateRecord, deleteRecord,
   } = useRecords({ moduleId: moduleId || '', pageSize: 10 });
 
   const {
@@ -49,13 +52,15 @@ export default function ModuleDetailPage() {
 
   // Apply saved view filters when switching views
   useEffect(() => {
+    if (activeView?.configJSON?.advancedFilter) {
+      setAdvancedFilter(activeView.configJSON.advancedFilter);
+    } else {
+      setAdvancedFilter(createEmptyFilter());
+    }
     if (activeView?.configJSON?.filters) {
       setFilters(activeView.configJSON.filters);
     } else {
       setFilters({});
-    }
-    if (activeView?.configJSON?.sortField) {
-      // Apply saved sort (handled via toggleSort would reset, so we leave as-is for now)
     }
   }, [activeViewId]);
 
@@ -123,6 +128,9 @@ export default function ModuleDetailPage() {
     const q = search.toLowerCase();
     return Object.values(r.values).some((v) => String(v).toLowerCase().includes(q));
   }).filter((r) => {
+    if (advancedFilter.conditions.length > 0) {
+      return applyAdvancedFilter(advancedFilter, r.values);
+    }
     return Object.entries(filters).every(([key, val]) => !val || String(r.values[key]) === val);
   });
 
@@ -140,9 +148,9 @@ export default function ModuleDetailPage() {
         <div className="ml-auto flex gap-2">
           <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
             <Filter className="h-3.5 w-3.5 mr-1.5" /> Filter
-            {Object.values(filters).filter(Boolean).length > 0 && (
+            {advancedFilter.conditions.length > 0 && (
               <Badge variant="secondary" className="ml-1.5 h-4 px-1 text-[10px]">
-                {Object.values(filters).filter(Boolean).length}
+                {advancedFilter.conditions.length}
               </Badge>
             )}
           </Button>
@@ -173,27 +181,21 @@ export default function ModuleDetailPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={`Search ${mod.name.toLowerCase()}...`} className="pl-9" />
         </div>
-        {showFilters && selectFields.length > 0 && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="flex flex-wrap gap-3 items-center">
-            {selectFields.map((f) => (
-              <div key={f.id} className="flex items-center gap-1.5">
-                <span className="text-xs text-muted-foreground font-medium">{f.label}:</span>
-                <Select value={filters[f.fieldKey] || 'all'} onValueChange={(v) => setFilters({ ...filters, [f.fieldKey]: v === 'all' ? '' : v })}>
-                  <SelectTrigger className="h-8 text-xs w-[130px]"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    {f.options?.map((opt) => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            ))}
-            {Object.values(filters).some(Boolean) && (
-              <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setFilters({})}>
-                <X className="h-3 w-3 mr-1" /> Clear
-              </Button>
-            )}
-          </motion.div>
-        )}
+        <AnimatePresence>
+          {showFilters && (
+            <AdvancedFilterBuilder
+              fields={fields}
+              filter={advancedFilter}
+              onChange={setAdvancedFilter}
+              onClear={() => setAdvancedFilter(createEmptyFilter())}
+              onSaveAsView={() => {
+                const name = `Filter (${advancedFilter.conditions.length} rules)`;
+                createView(name, viewType, { advancedFilter });
+                toast({ title: "View saved", description: `"${name}" view created with current filters.` });
+              }}
+            />
+          )}
+        </AnimatePresence>
       </div>
 
       {/* View Content */}
