@@ -128,6 +128,9 @@ export default function ModuleDetailPage() {
     const q = search.toLowerCase();
     return Object.values(r.values).some((v) => String(v).toLowerCase().includes(q));
   }).filter((r) => {
+    if (advancedFilter.conditions.length > 0) {
+      return applyAdvancedFilter(advancedFilter, r.values);
+    }
     return Object.entries(filters).every(([key, val]) => !val || String(r.values[key]) === val);
   });
 
