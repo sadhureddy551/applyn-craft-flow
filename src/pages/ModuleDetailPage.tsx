@@ -12,6 +12,8 @@ import { useModuleViews } from "@/hooks/useModuleViews";
 import { useLeadScores } from "@/hooks/useLeadScores";
 import { RecordCreateDialog } from "@/components/records/RecordCreateDialog";
 import { RecordDeleteDialog } from "@/components/records/RecordDeleteDialog";
+import { DuplicateWarningDialog, DuplicateMatch } from "@/components/records/DuplicateWarningDialog";
+import { useDuplicateDetection } from "@/hooks/useDuplicateDetection";
 import { ViewSwitcher } from "@/components/views/ViewSwitcher";
 import { TableView } from "@/components/views/TableView";
 import { KanbanView } from "@/components/views/KanbanView";
