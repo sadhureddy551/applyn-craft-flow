@@ -94,7 +94,7 @@ export interface Widget {
   id: string;
   dashboardId: string;
   widgetType: 'metric' | 'chart' | 'table' | 'quick_action';
-  config: Record<string, any>;
+  config: { [key: string]: any };
   orderIndex: number;
 }
 
