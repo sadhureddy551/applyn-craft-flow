@@ -66,7 +66,7 @@ const MiniChart = forwardRef<HTMLDivElement, { report: ReturnType<typeof useRepo
       </BarChart>
     </ResponsiveContainer>
   );
-}
+});
 
 export default function ReportsPage() {
   const { reports, createReport, deleteReport } = useReports();
