@@ -41,6 +41,8 @@ export default function ModuleDetailPage() {
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
+  const scores = useLeadScores(allRecords);
+
   // Apply saved view filters when switching views
   useEffect(() => {
     if (activeView?.configJSON?.filters) {
