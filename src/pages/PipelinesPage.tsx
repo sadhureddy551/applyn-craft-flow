@@ -50,7 +50,7 @@ export default function PipelinesPage() {
       setPipelines(pipelines.map(p => p.id === editingId ? { ...p, name, stages: pipelineStages } : p));
       toast.success("Pipeline updated");
     } else {
-      const newPipeline: Pipeline = { id: `pip-${Date.now()}`, name, moduleId: '1', stages: pipelineStages };
+      const newPipeline: Pipeline = { id: `pip-${Date.now()}`, tenantId: 't1', name, moduleId: '1', stages: pipelineStages };
       setPipelines([...pipelines, newPipeline]);
       setActivePipelineId(newPipeline.id);
       toast.success("Pipeline created");
