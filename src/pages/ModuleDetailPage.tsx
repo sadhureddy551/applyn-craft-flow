@@ -52,13 +52,15 @@ export default function ModuleDetailPage() {
 
   // Apply saved view filters when switching views
   useEffect(() => {
+    if (activeView?.configJSON?.advancedFilter) {
+      setAdvancedFilter(activeView.configJSON.advancedFilter);
+    } else {
+      setAdvancedFilter(createEmptyFilter());
+    }
     if (activeView?.configJSON?.filters) {
       setFilters(activeView.configJSON.filters);
     } else {
       setFilters({});
-    }
-    if (activeView?.configJSON?.sortField) {
-      // Apply saved sort (handled via toggleSort would reset, so we leave as-is for now)
     }
   }, [activeViewId]);
 
