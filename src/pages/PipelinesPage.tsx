@@ -44,7 +44,7 @@ export default function PipelinesPage() {
   const handleSave = () => {
     if (!name.trim() || stages.length === 0) return;
     const pipelineStages: PipelineStage[] = stages.map((s, i) => ({
-      id: `stg-${Date.now()}-${i}`, stageName: s.name, color: s.color, order: i,
+      id: `stg-${Date.now()}-${i}`, pipelineId: editingId || `pip-${Date.now()}`, stageName: s.name, color: s.color, orderIndex: i,
     }));
     if (editingId) {
       setPipelines(pipelines.map(p => p.id === editingId ? { ...p, name, stages: pipelineStages } : p));
