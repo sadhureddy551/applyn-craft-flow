@@ -38,6 +38,7 @@ const App = () => (
             <Route path="/templates" element={<TemplatesPage />} />
             <Route path="/pipelines" element={<PipelinesPage />} />
             <Route path="/automations" element={<AutomationsPage />} />
+            <Route path="/automations/:automationId" element={<AutomationBuilderPage />} />
             <Route path="/relationships" element={<RelationshipsPage />} />
             <Route path="/forms" element={<FormsPage />} />
             <Route path="/forms/:formId" element={<FormBuilderPage />} />
