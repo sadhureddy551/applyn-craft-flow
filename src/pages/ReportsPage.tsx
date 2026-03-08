@@ -26,7 +26,7 @@ const chartIcon = (type: ChartType) => {
   }
 };
 
-function MiniChart({ report }: { report: ReturnType<typeof useReports>['reports'][0] }) {
+const MiniChart = forwardRef<HTMLDivElement, { report: ReturnType<typeof useReports>['reports'][0] }>(function MiniChart({ report }, ref) {
   const data = useReportData(report);
   const metricKey = report.metrics[0]?.label || 'Count';
 
