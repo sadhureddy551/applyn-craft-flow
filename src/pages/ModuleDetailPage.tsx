@@ -111,6 +111,7 @@ export default function ModuleDetailPage() {
 
   const handleDelete = () => {
     if (!deleteTarget) return;
+    logChange('record', deleteTarget.id, 'delete', { oldValue: deleteTarget.name });
     deleteRecord(deleteTarget.id);
     setDeleteTarget(null);
     toast({ title: "Record deleted", description: "The record has been deleted." });
