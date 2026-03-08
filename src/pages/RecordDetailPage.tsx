@@ -52,6 +52,8 @@ export default function RecordDetailPage() {
 
   const [values, setValues] = useState<Record<string, any>>(record?.values || {});
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const { logChange, getEntityLogs } = useAuditLogs();
+  const auditLogs = getEntityLogs(recordId || '');
 
   const scores = useLeadScores(allRecords);
   const leadScore = record ? scores.get(record.id) : undefined;
