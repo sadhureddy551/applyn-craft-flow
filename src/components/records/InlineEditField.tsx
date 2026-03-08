@@ -11,9 +11,10 @@ interface InlineEditFieldProps {
   field: Field;
   value: any;
   onSave: (fieldKey: string, value: any) => void;
+  disabled?: boolean;
 }
 
-export function InlineEditField({ field, value, onSave }: InlineEditFieldProps) {
+export function InlineEditField({ field, value, onSave, disabled = false }: InlineEditFieldProps) {
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(value);
   const [saved, setSaved] = useState(false);
@@ -47,6 +48,14 @@ export function InlineEditField({ field, value, onSave }: InlineEditFieldProps) 
     if (field.fieldType === 'currency') return <span className="font-medium">${Number(value).toLocaleString()}</span>;
     return <span>{String(value)}</span>;
   };
+
+  if (disabled) {
+    return (
+      <div className="flex items-center gap-2 rounded-md px-2 py-1.5 -mx-2">
+        <div className="flex-1 text-sm">{displayValue()}</div>
+      </div>
+    );
+  }
 
   if (editing) {
     return (

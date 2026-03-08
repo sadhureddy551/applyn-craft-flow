@@ -19,6 +19,7 @@ import { RecordTagsManager } from "@/components/records/RecordTags";
 import { AuditLogTimeline } from "@/components/records/AuditLogTimeline";
 import { useAuditLogs } from "@/hooks/useAuditLogs";
 import { useToast } from "@/hooks/use-toast";
+import { usePermission } from "@/components/PermissionProvider";
 
 const stageColors: Record<string, string> = {
   New: 'bg-brand-blue/10 text-brand-blue border-brand-blue/20',
@@ -36,6 +37,10 @@ export default function RecordDetailPage() {
   const { toast } = useToast();
 
   const mod = mockModules.find((m) => m.id === moduleId);
+  const moduleSlug = mod?.slug || '';
+  const { hasPermission } = usePermission();
+  const canEdit = hasPermission(moduleSlug, 'edit');
+  const canDelete = hasPermission(moduleSlug, 'delete');
   const fields = mockFields[moduleId || ''] || [];
   const allRecords = mockRecords[moduleId || ''] || [];
   const record = allRecords.find((r) => r.id === recordId);
@@ -124,9 +129,11 @@ export default function RecordDetailPage() {
               </div>
             </div>
           </div>
-          <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => setDeleteOpen(true)}>
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {canDelete && (
+            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => setDeleteOpen(true)}>
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </motion.div>
 
@@ -140,7 +147,7 @@ export default function RecordDetailPage() {
                 {contactFields.map((f) => (
                   <div key={f.id} className="py-1">
                     <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{f.label}</label>
-                    <InlineEditField field={f} value={values[f.fieldKey]} onSave={handleFieldSave} />
+                    <InlineEditField field={f} value={values[f.fieldKey]} onSave={handleFieldSave} disabled={!canEdit} />
                   </div>
                 ))}
               </div>
@@ -153,7 +160,7 @@ export default function RecordDetailPage() {
               {otherFields.map((f) => (
                 <div key={f.id} className={`py-1 ${f.fieldType === 'textarea' ? 'sm:col-span-2' : ''}`}>
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{f.label}</label>
-                  <InlineEditField field={f} value={values[f.fieldKey]} onSave={handleFieldSave} />
+                  <InlineEditField field={f} value={values[f.fieldKey]} onSave={handleFieldSave} disabled={!canEdit} />
                 </div>
               ))}
             </div>

@@ -23,6 +23,7 @@ import { AdvancedFilterBuilder } from "@/components/views/AdvancedFilterBuilder"
 import { createEmptyFilter, applyAdvancedFilter } from "@/lib/filter-types";
 import { useAuditLogs } from "@/hooks/useAuditLogs";
 import { useToast } from "@/hooks/use-toast";
+import { usePermission } from "@/components/PermissionProvider";
 
 export default function ModuleDetailPage() {
   const { moduleId } = useParams();
@@ -30,6 +31,8 @@ export default function ModuleDetailPage() {
   const { toast } = useToast();
   const mod = mockModules.find((m) => m.id === moduleId);
   const fields = mockFields[moduleId || ''] || [];
+  const moduleSlug = mod?.slug || '';
+  const { hasPermission } = usePermission();
 
   const {
     records, allRecords, totalCount, page, totalPages, setPage,
@@ -158,9 +161,11 @@ export default function ModuleDetailPage() {
               </Badge>
             )}
           </Button>
-          <Button size="sm" className="gradient-brand text-primary-foreground shadow-brand hover:opacity-90" onClick={() => setCreateOpen(true)}>
-            <Plus className="h-3.5 w-3.5 mr-1.5" /> Add Record
-          </Button>
+          {hasPermission(moduleSlug, 'create') && (
+            <Button size="sm" className="gradient-brand text-primary-foreground shadow-brand hover:opacity-90" onClick={() => setCreateOpen(true)}>
+              <Plus className="h-3.5 w-3.5 mr-1.5" /> Add Record
+            </Button>
+          )}
         </div>
       </div>
 

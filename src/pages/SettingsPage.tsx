@@ -15,6 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { useWorkspace } from '@/hooks/useWorkspace';
 import { useApiKeys } from '@/hooks/useApiKeys';
+import { RoleManagement } from '@/components/RoleManagement';
 import { PLANS, TIMEZONES, CURRENCIES, DATE_FORMATS, PlanTier } from '@/lib/workspace-types';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -66,6 +67,7 @@ export default function SettingsPage() {
           <TabsTrigger value="general" className="gap-1.5"><Building2 className="h-3.5 w-3.5" />General</TabsTrigger>
           <TabsTrigger value="branding" className="gap-1.5"><Palette className="h-3.5 w-3.5" />Branding</TabsTrigger>
           <TabsTrigger value="api" className="gap-1.5"><Key className="h-3.5 w-3.5" />API</TabsTrigger>
+          <TabsTrigger value="roles" className="gap-1.5"><Shield className="h-3.5 w-3.5" />Roles</TabsTrigger>
           <TabsTrigger value="billing" className="gap-1.5"><CreditCard className="h-3.5 w-3.5" />Billing</TabsTrigger>
           <TabsTrigger value="team" className="gap-1.5"><Users className="h-3.5 w-3.5" />Team</TabsTrigger>
         </TabsList>
@@ -375,6 +377,11 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* ROLES & PERMISSIONS */}
+        <TabsContent value="roles">
+          <RoleManagement />
         </TabsContent>
       </Tabs>
     </div>
