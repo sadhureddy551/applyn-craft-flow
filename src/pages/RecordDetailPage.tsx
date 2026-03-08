@@ -79,6 +79,11 @@ export default function RecordDetailPage() {
     setValues((prev) => ({ ...prev, [fieldKey]: newValue }));
     const field = fields.find((f) => f.fieldKey === fieldKey);
     addActivity('field_updated', `${field?.label || fieldKey} changed from "${oldValue || 'empty'}" to "${newValue}"`);
+    logChange('record', recordId || '', 'update', {
+      oldValue: String(oldValue || ''),
+      newValue: String(newValue),
+      fieldLabel: field?.label || fieldKey,
+    });
     toast({ title: "Field updated", description: `${field?.label} has been saved.` });
   };
 
