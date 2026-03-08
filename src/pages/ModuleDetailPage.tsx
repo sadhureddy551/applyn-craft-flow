@@ -42,8 +42,10 @@ export default function ModuleDetailPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [duplicateWarning, setDuplicateWarning] = useState<{ duplicates: DuplicateMatch[]; pendingValues: Record<string, any> } | null>(null);
 
   const scores = useLeadScores(allRecords);
+  const { findDuplicates } = useDuplicateDetection(allRecords, fields);
 
   // Apply saved view filters when switching views
   useEffect(() => {
