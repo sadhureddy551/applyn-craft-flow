@@ -48,7 +48,7 @@ const App = () => (
             <Route path="/tasks" element={<PlaceholderPage title="Tasks" description="Manage tasks and to-dos across your CRM" />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/reports/:reportId" element={<ReportDetailPage />} />
-            <Route path="/settings" element={<PlaceholderPage title="Settings" description="Configure your workspace, users, and permissions" />} />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AppLayout>
