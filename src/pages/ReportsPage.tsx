@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart3, Plus, Trash2, Edit, PieChart, LineChart, Table2, Calendar, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,7 @@ const chartIcon = (type: ChartType) => {
   }
 };
 
-function MiniChart({ report }: { report: ReturnType<typeof useReports>['reports'][0] }) {
+const MiniChart = forwardRef<HTMLDivElement, { report: ReturnType<typeof useReports>['reports'][0] }>(function MiniChart({ report }, ref) {
   const data = useReportData(report);
   const metricKey = report.metrics[0]?.label || 'Count';
 
@@ -66,7 +66,7 @@ function MiniChart({ report }: { report: ReturnType<typeof useReports>['reports'
       </BarChart>
     </ResponsiveContainer>
   );
-}
+});
 
 export default function ReportsPage() {
   const { reports, createReport, deleteReport } = useReports();
