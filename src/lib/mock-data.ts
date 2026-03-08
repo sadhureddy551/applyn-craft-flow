@@ -119,14 +119,39 @@ export const mockPipelines: Pipeline[] = [
 ];
 
 export const mockTemplates: CRMTemplate[] = [
-  { id: 't1', name: 'Sales CRM', category: 'Sales', description: 'Complete sales pipeline with leads, contacts, deals, and forecasting', icon: 'TrendingUp', modules: [], color: '#7C3AED' },
-  { id: 't2', name: 'Healthcare CRM', category: 'Healthcare', description: 'Patient management, appointments, and medical records', icon: 'Heart', modules: [], color: '#EF4444' },
-  { id: 't3', name: 'Real Estate CRM', category: 'Real Estate', description: 'Properties, listings, buyers, and transactions', icon: 'Home', modules: [], color: '#F59E0B' },
-  { id: 't4', name: 'Education CRM', category: 'Education', description: 'Student enrollment, courses, and academic tracking', icon: 'GraduationCap', modules: [], color: '#3B82F6' },
-  { id: 't5', name: 'Recruitment CRM', category: 'HR', description: 'Candidate tracking, interviews, and hiring pipeline', icon: 'Briefcase', modules: [], color: '#10B981' },
-  { id: 't6', name: 'Support CRM', category: 'Support', description: 'Ticket management, SLA tracking, and customer support', icon: 'Headphones', modules: [], color: '#6366F1' },
-  { id: 't7', name: 'Marketing CRM', category: 'Marketing', description: 'Campaign management, lead scoring, and analytics', icon: 'Megaphone', modules: [], color: '#EC4899' },
-  { id: 't8', name: 'Finance CRM', category: 'Finance', description: 'Client portfolio, invoicing, and financial tracking', icon: 'DollarSign', modules: [], color: '#14B8A6' },
+  { id: 't1', name: 'Sales CRM', category: 'Sales', description: 'Complete sales pipeline with leads, contacts, deals, and forecasting', icon: 'TrendingUp', color: '#7C3AED', modules: [
+    { name: 'Leads', slug: 'leads', icon: 'Users', description: 'Track and manage leads' },
+    { name: 'Contacts', slug: 'contacts', icon: 'Contact', description: 'Manage contacts' },
+    { name: 'Deals', slug: 'deals', icon: 'Handshake', description: 'Track deals and revenue' },
+  ]},
+  { id: 't2', name: 'Healthcare CRM', category: 'Healthcare', description: 'Patient management, appointments, and medical records', icon: 'Heart', color: '#EF4444', modules: [
+    { name: 'Patients', slug: 'patients', icon: 'Users', description: 'Manage patient records' },
+    { name: 'Appointments', slug: 'appointments', icon: 'CheckSquare', description: 'Schedule appointments' },
+  ]},
+  { id: 't3', name: 'Real Estate CRM', category: 'Real Estate', description: 'Properties, listings, buyers, and transactions', icon: 'Home', color: '#F59E0B', modules: [
+    { name: 'Properties', slug: 'properties', icon: 'Building2', description: 'Manage property listings' },
+    { name: 'Buyers', slug: 'buyers', icon: 'Users', description: 'Track potential buyers' },
+  ]},
+  { id: 't4', name: 'Education CRM', category: 'Education', description: 'Student enrollment, courses, and academic tracking', icon: 'GraduationCap', color: '#3B82F6', modules: [
+    { name: 'Students', slug: 'students', icon: 'Users', description: 'Student management' },
+    { name: 'Courses', slug: 'courses', icon: 'Boxes', description: 'Course catalog' },
+  ]},
+  { id: 't5', name: 'Recruitment CRM', category: 'HR', description: 'Candidate tracking, interviews, and hiring pipeline', icon: 'Briefcase', color: '#10B981', modules: [
+    { name: 'Candidates', slug: 'candidates', icon: 'Users', description: 'Track candidates' },
+    { name: 'Positions', slug: 'positions', icon: 'Boxes', description: 'Open positions' },
+  ]},
+  { id: 't6', name: 'Support CRM', category: 'Support', description: 'Ticket management, SLA tracking, and customer support', icon: 'Headphones', color: '#6366F1', modules: [
+    { name: 'Tickets', slug: 'tickets', icon: 'CheckSquare', description: 'Support tickets' },
+    { name: 'Customers', slug: 'customers', icon: 'Users', description: 'Customer database' },
+  ]},
+  { id: 't7', name: 'Marketing CRM', category: 'Marketing', description: 'Campaign management, lead scoring, and analytics', icon: 'Megaphone', color: '#EC4899', modules: [
+    { name: 'Campaigns', slug: 'campaigns', icon: 'Boxes', description: 'Marketing campaigns' },
+    { name: 'Leads', slug: 'marketing_leads', icon: 'Users', description: 'Marketing leads' },
+  ]},
+  { id: 't8', name: 'Finance CRM', category: 'Finance', description: 'Client portfolio, invoicing, and financial tracking', icon: 'DollarSign', color: '#14B8A6', modules: [
+    { name: 'Clients', slug: 'clients', icon: 'Users', description: 'Client portfolio' },
+    { name: 'Invoices', slug: 'invoices', icon: 'Boxes', description: 'Invoice management' },
+  ]},
 ];
 
 export const dashboardStats = {

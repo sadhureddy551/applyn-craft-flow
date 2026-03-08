@@ -39,8 +39,12 @@ export default function TemplatesPage() {
   const filtered = selected === 'All' ? templates : templates.filter((t) => t.category === selected);
 
   const handleInstall = (id: string, tplName: string) => {
+    const tpl = templates.find(t => t.id === id);
     setInstalled((prev) => new Set(prev).add(id));
-    toast.success(`${tplName} template installed!`);
+    const moduleNames = (tpl as any)?.modules?.map((m: any) => m.name).join(', ') || '';
+    toast.success(`${tplName} installed!`, {
+      description: moduleNames ? `Modules created: ${moduleNames}` : 'Template applied successfully',
+    });
   };
 
   const handleSave = () => {
