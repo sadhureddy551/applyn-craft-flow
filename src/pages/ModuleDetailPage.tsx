@@ -21,6 +21,7 @@ import { CalendarView } from "@/components/views/CalendarView";
 import { ListView } from "@/components/views/ListView";
 import { AdvancedFilterBuilder } from "@/components/views/AdvancedFilterBuilder";
 import { createEmptyFilter, applyAdvancedFilter } from "@/lib/filter-types";
+import { useAuditLogs } from "@/hooks/useAuditLogs";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ModuleDetailPage() {
@@ -49,6 +50,7 @@ export default function ModuleDetailPage() {
 
   const scores = useLeadScores(allRecords);
   const { findDuplicates } = useDuplicateDetection(allRecords, fields);
+  const { logChange } = useAuditLogs();
 
   // Apply saved view filters when switching views
   useEffect(() => {
@@ -76,7 +78,8 @@ export default function ModuleDetailPage() {
       setDuplicateWarning({ duplicates, pendingValues: values });
       return;
     }
-    createRecord(values);
+    const rec = createRecord(values);
+    logChange('record', rec.id, 'create', { newValue: values[nameField?.fieldKey] || 'New record' });
     toast({ title: "Record created", description: `New ${mod.name.toLowerCase().slice(0, -1)} has been created.` });
   };
 
@@ -108,6 +111,7 @@ export default function ModuleDetailPage() {
 
   const handleDelete = () => {
     if (!deleteTarget) return;
+    logChange('record', deleteTarget.id, 'delete', { oldValue: deleteTarget.name });
     deleteRecord(deleteTarget.id);
     setDeleteTarget(null);
     toast({ title: "Record deleted", description: "The record has been deleted." });

@@ -20,6 +20,8 @@ import { RelatedRecordsPanel } from "@/components/records/RelatedRecordsPanel";
 import { RecordDeleteDialog } from "@/components/records/RecordDeleteDialog";
 import { LeadScoreBadge } from "@/components/LeadScoreBadge";
 import { RecordTagsManager } from "@/components/records/RecordTags";
+import { AuditLogTimeline } from "@/components/records/AuditLogTimeline";
+import { useAuditLogs } from "@/hooks/useAuditLogs";
 import { useToast } from "@/hooks/use-toast";
 
 const stageColors: Record<string, string> = {
@@ -50,6 +52,8 @@ export default function RecordDetailPage() {
 
   const [values, setValues] = useState<Record<string, any>>(record?.values || {});
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const { logChange, getEntityLogs } = useAuditLogs();
+  const auditLogs = getEntityLogs(recordId || '');
 
   const scores = useLeadScores(allRecords);
   const leadScore = record ? scores.get(record.id) : undefined;
@@ -75,6 +79,11 @@ export default function RecordDetailPage() {
     setValues((prev) => ({ ...prev, [fieldKey]: newValue }));
     const field = fields.find((f) => f.fieldKey === fieldKey);
     addActivity('field_updated', `${field?.label || fieldKey} changed from "${oldValue || 'empty'}" to "${newValue}"`);
+    logChange('record', recordId || '', 'update', {
+      oldValue: String(oldValue || ''),
+      newValue: String(newValue),
+      fieldLabel: field?.label || fieldKey,
+    });
     toast({ title: "Field updated", description: `${field?.label} has been saved.` });
   };
 
@@ -173,6 +182,7 @@ export default function RecordDetailPage() {
                 <TabsTrigger value="whatsapp" className="flex-1 rounded-none text-xs py-2.5 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary">WhatsApp</TabsTrigger>
                 <TabsTrigger value="notes" className="flex-1 rounded-none text-xs py-2.5 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary">Notes</TabsTrigger>
                 <TabsTrigger value="files" className="flex-1 rounded-none text-xs py-2.5 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary">Files</TabsTrigger>
+                <TabsTrigger value="history" className="flex-1 rounded-none text-xs py-2.5 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary">History</TabsTrigger>
               </TabsList>
               <div className="p-4">
                 <TabsContent value="activity" className="mt-0">
@@ -195,6 +205,9 @@ export default function RecordDetailPage() {
                 </TabsContent>
                 <TabsContent value="files" className="mt-0">
                   <RecordFiles files={files} onAdd={addFile} onDelete={deleteFile} />
+                </TabsContent>
+                <TabsContent value="history" className="mt-0">
+                  <AuditLogTimeline logs={auditLogs} />
                 </TabsContent>
               </div>
             </Tabs>
