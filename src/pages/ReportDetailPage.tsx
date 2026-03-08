@@ -166,7 +166,7 @@ export default function ReportDetailPage() {
                 <div><Label>Email</Label><Input value={scheduleEmail} onChange={e => setScheduleEmail(e.target.value)} placeholder="john@company.com" /></div>
                 <div>
                   <Label>Frequency</Label>
-                  <Select value={scheduleCron} onValueChange={setScheduleCron}>
+                  <Select value={scheduleCron} onValueChange={(v) => setScheduleCron(v as 'daily' | 'weekly' | 'monthly')}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="daily">Daily</SelectItem>
