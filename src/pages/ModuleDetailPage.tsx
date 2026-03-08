@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { mockModules, mockFields } from "@/lib/mock-data";
 import { useRecords } from "@/hooks/useRecords";
 import { useModuleViews } from "@/hooks/useModuleViews";
+import { useLeadScores } from "@/hooks/useLeadScores";
 import { RecordCreateDialog } from "@/components/records/RecordCreateDialog";
 import { RecordDeleteDialog } from "@/components/records/RecordDeleteDialog";
 import { ViewSwitcher } from "@/components/views/ViewSwitcher";
