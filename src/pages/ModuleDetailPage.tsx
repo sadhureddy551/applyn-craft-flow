@@ -50,6 +50,7 @@ export default function ModuleDetailPage() {
 
   const scores = useLeadScores(allRecords);
   const { findDuplicates } = useDuplicateDetection(allRecords, fields);
+  const { logChange } = useAuditLogs();
 
   // Apply saved view filters when switching views
   useEffect(() => {
