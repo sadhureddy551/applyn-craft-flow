@@ -82,6 +82,7 @@ export function TableView({
                 </th>
               ))}
               {scores && <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Score</th>}
+              <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tags</th>
               <th className="w-10" />
             </tr>
           </thead>
