@@ -7,6 +7,7 @@ import { AppLayout } from "@/components/AppLayout";
 import Dashboard from "@/pages/Dashboard";
 import ModulesPage from "@/pages/ModulesPage";
 import ModuleDetailPage from "@/pages/ModuleDetailPage";
+import RecordDetailPage from "@/pages/RecordDetailPage";
 import TemplatesPage from "@/pages/TemplatesPage";
 import PipelinesPage from "@/pages/PipelinesPage";
 import AutomationsPage from "@/pages/AutomationsPage";
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/" element={<Dashboard />} />
             <Route path="/modules" element={<ModulesPage />} />
             <Route path="/modules/:moduleId" element={<ModuleDetailPage />} />
+            <Route path="/modules/:moduleId/records/:recordId" element={<RecordDetailPage />} />
             <Route path="/templates" element={<TemplatesPage />} />
             <Route path="/pipelines" element={<PipelinesPage />} />
             <Route path="/automations" element={<AutomationsPage />} />
