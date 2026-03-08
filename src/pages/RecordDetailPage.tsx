@@ -176,7 +176,7 @@ export default function RecordDetailPage() {
               </TabsList>
               <div className="p-4">
                 <TabsContent value="activity" className="mt-0">
-                  <ActivityTimeline activities={activities} emails={emails} whatsAppMessages={waMessages} />
+                  <ActivityTimeline activities={activities} emails={emails} whatsAppMessages={waMessages} notes={notes} />
                 </TabsContent>
                 <TabsContent value="emails" className="mt-0">
                   <div className="space-y-4">
