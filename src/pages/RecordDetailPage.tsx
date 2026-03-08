@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Mail, Phone, Building2, User, Clock, MoreHorizontal, Trash2 } from "lucide-react";
+import { ArrowLeft, Mail, Phone, Building2, User, Clock, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,6 +11,7 @@ import { InlineEditField } from "@/components/records/InlineEditField";
 import { ActivityTimeline } from "@/components/records/ActivityTimeline";
 import { RecordNotes } from "@/components/records/RecordNotes";
 import { RecordFiles } from "@/components/records/RecordFiles";
+import { RelatedRecordsPanel } from "@/components/records/RelatedRecordsPanel";
 import { RecordDeleteDialog } from "@/components/records/RecordDeleteDialog";
 import { useToast } from "@/hooks/use-toast";
 
@@ -61,7 +62,7 @@ export default function RecordDetailPage() {
     const oldValue = values[fieldKey];
     setValues((prev) => ({ ...prev, [fieldKey]: newValue }));
     const field = fields.find((f) => f.fieldKey === fieldKey);
-    addActivity('field_updated', `${field?.label || fieldKey} changed from \"${oldValue || 'empty'}\" to \"${newValue}\"`);
+    addActivity('field_updated', `${field?.label || fieldKey} changed from "${oldValue || 'empty'}" to "${newValue}"`);
     toast({ title: "Field updated", description: `${field?.label} has been saved.` });
   };
 
@@ -70,13 +71,11 @@ export default function RecordDetailPage() {
     navigate(`/modules/${moduleId}`);
   };
 
-  // Group fields into sections
   const contactFields = fields.filter((f) => ['email', 'phone', 'company'].includes(f.fieldKey));
   const otherFields = fields.filter((f) => !['email', 'phone', 'company'].includes(f.fieldKey) && f.orderIndex !== 0);
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
-      {/* Back nav */}
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={() => navigate(`/modules/${moduleId}`)}>
           <ArrowLeft className="h-4 w-4 mr-1.5" /> {mod.name}
@@ -95,34 +94,14 @@ export default function RecordDetailPage() {
             <div>
               <h1 className="text-xl font-bold text-foreground">{recordName}</h1>
               <div className="flex flex-wrap items-center gap-3 mt-1.5 text-sm text-muted-foreground">
-                {company && (
-                  <span className="flex items-center gap-1">
-                    <Building2 className="h-3.5 w-3.5" /> {company}
-                  </span>
-                )}
-                {email && (
-                  <span className="flex items-center gap-1">
-                    <Mail className="h-3.5 w-3.5" /> {email}
-                  </span>
-                )}
-                {phone && (
-                  <span className="flex items-center gap-1">
-                    <Phone className="h-3.5 w-3.5" /> {phone}
-                  </span>
-                )}
+                {company && <span className="flex items-center gap-1"><Building2 className="h-3.5 w-3.5" /> {company}</span>}
+                {email && <span className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" /> {email}</span>}
+                {phone && <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" /> {phone}</span>}
               </div>
               <div className="flex items-center gap-2 mt-2">
-                {stage && (
-                  <Badge variant="outline" className={`text-xs ${stageColors[stage] || 'bg-muted text-muted-foreground'}`}>
-                    {stage}
-                  </Badge>
-                )}
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <User className="h-3 w-3" /> {record.createdBy}
-                </span>
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Clock className="h-3 w-3" /> {new Date(record.createdAt).toLocaleDateString()}
-                </span>
+                {stage && <Badge variant="outline" className={`text-xs ${stageColors[stage] || 'bg-muted text-muted-foreground'}`}>{stage}</Badge>}
+                <span className="text-xs text-muted-foreground flex items-center gap-1"><User className="h-3 w-3" /> {record.createdBy}</span>
+                <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" /> {new Date(record.createdAt).toLocaleDateString()}</span>
               </div>
             </div>
           </div>
@@ -134,9 +113,7 @@ export default function RecordDetailPage() {
 
       {/* Main Content + Sidebar */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Section - Editable Fields */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Contact Info */}
           {contactFields.length > 0 && (
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-xl border border-border bg-card shadow-card p-5">
               <h3 className="text-sm font-semibold text-foreground mb-3">Contact Information</h3>
@@ -151,7 +128,6 @@ export default function RecordDetailPage() {
             </motion.div>
           )}
 
-          {/* Other Fields */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-xl border border-border bg-card shadow-card p-5">
             <h3 className="text-sm font-semibold text-foreground mb-3">Details</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1">
@@ -163,10 +139,16 @@ export default function RecordDetailPage() {
               ))}
             </div>
           </motion.div>
+
+          {/* Related Records */}
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-xl border border-border bg-card shadow-card p-5">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Related Records</h3>
+            <RelatedRecordsPanel recordId={recordId || ''} moduleId={moduleId || ''} />
+          </motion.div>
         </div>
 
         {/* Right Sidebar */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="space-y-0">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-0">
           <div className="rounded-xl border border-border bg-card shadow-card overflow-hidden">
             <Tabs defaultValue="activity" className="w-full">
               <TabsList className="w-full rounded-none border-b border-border bg-muted/30 h-auto p-0">
