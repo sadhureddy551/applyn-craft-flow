@@ -8,8 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockModules, mockFields, mockRecords } from "@/lib/mock-data";
 import { useRecordActivities, useRecordNotes, useRecordFiles } from "@/hooks/useRecords";
 import { useLeadScores } from "@/hooks/useLeadScores";
-import { useEmails } from "@/hooks/useEmails";
-import { useWhatsApp } from "@/hooks/useWhatsApp";
 import { InlineEditField } from "@/components/records/InlineEditField";
 import { ActivityTimeline } from "@/components/records/ActivityTimeline";
 import { RecordNotes } from "@/components/records/RecordNotes";
