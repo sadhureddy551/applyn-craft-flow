@@ -251,6 +251,18 @@ export default function ModuleDetailPage() {
       {deleteTarget && (
         <RecordDeleteDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)} recordName={deleteTarget.name} onConfirm={handleDelete} />
       )}
+      {duplicateWarning && (
+        <DuplicateWarningDialog
+          open={!!duplicateWarning}
+          onOpenChange={(open) => !open && setDuplicateWarning(null)}
+          duplicates={duplicateWarning.duplicates}
+          fields={fields}
+          newValues={duplicateWarning.pendingValues}
+          onIgnore={handleIgnoreDuplicate}
+          onViewDuplicate={handleViewDuplicate}
+          onMerge={handleMerge}
+        />
+      )}
     </div>
   );
 }
