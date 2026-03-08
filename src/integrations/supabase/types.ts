@@ -14,7 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      api_keys: {
+        Row: {
+          api_key: string
+          created_at: string
+          id: string
+          is_active: boolean
+          key_name: string
+          last_used_at: string | null
+          tenant_id: string
+        }
+        Insert: {
+          api_key?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          key_name: string
+          last_used_at?: string | null
+          tenant_id?: string
+        }
+        Update: {
+          api_key?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          key_name?: string
+          last_used_at?: string | null
+          tenant_id?: string
+        }
+        Relationships: []
+      }
+      crm_records: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          module_id: string
+          tenant_id: string
+          updated_at: string
+          values: Json
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          module_id: string
+          tenant_id?: string
+          updated_at?: string
+          values?: Json
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          module_id?: string
+          tenant_id?: string
+          updated_at?: string
+          values?: Json
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
