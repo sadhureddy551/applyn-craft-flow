@@ -12,6 +12,9 @@ import TemplatesPage from "@/pages/TemplatesPage";
 import PipelinesPage from "@/pages/PipelinesPage";
 import AutomationsPage from "@/pages/AutomationsPage";
 import RelationshipsPage from "@/pages/RelationshipsPage";
+import FormsPage from "@/pages/FormsPage";
+import FormBuilderPage from "@/pages/FormBuilderPage";
+import FormPreviewPage from "@/pages/FormPreviewPage";
 import PlaceholderPage from "@/pages/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 
@@ -33,8 +36,11 @@ const App = () => (
             <Route path="/pipelines" element={<PipelinesPage />} />
             <Route path="/automations" element={<AutomationsPage />} />
             <Route path="/relationships" element={<RelationshipsPage />} />
+            <Route path="/forms" element={<FormsPage />} />
+            <Route path="/forms/:formId" element={<FormBuilderPage />} />
+            <Route path="/forms/:formId/preview" element={<FormPreviewPage />} />
+            <Route path="/form/:formId" element={<FormPreviewPage />} />
             <Route path="/tasks" element={<PlaceholderPage title="Tasks" description="Manage tasks and to-dos across your CRM" />} />
-            <Route path="/forms" element={<PlaceholderPage title="Forms" description="Build lead capture forms for your website" />} />
             <Route path="/reports" element={<PlaceholderPage title="Reports" description="Create custom reports with charts and analytics" />} />
             <Route path="/settings" element={<PlaceholderPage title="Settings" description="Configure your workspace, users, and permissions" />} />
             <Route path="*" element={<NotFound />} />
