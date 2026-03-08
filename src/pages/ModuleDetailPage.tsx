@@ -178,27 +178,21 @@ export default function ModuleDetailPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={`Search ${mod.name.toLowerCase()}...`} className="pl-9" />
         </div>
-        {showFilters && selectFields.length > 0 && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="flex flex-wrap gap-3 items-center">
-            {selectFields.map((f) => (
-              <div key={f.id} className="flex items-center gap-1.5">
-                <span className="text-xs text-muted-foreground font-medium">{f.label}:</span>
-                <Select value={filters[f.fieldKey] || 'all'} onValueChange={(v) => setFilters({ ...filters, [f.fieldKey]: v === 'all' ? '' : v })}>
-                  <SelectTrigger className="h-8 text-xs w-[130px]"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    {f.options?.map((opt) => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            ))}
-            {Object.values(filters).some(Boolean) && (
-              <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setFilters({})}>
-                <X className="h-3 w-3 mr-1" /> Clear
-              </Button>
-            )}
-          </motion.div>
-        )}
+        <AnimatePresence>
+          {showFilters && (
+            <AdvancedFilterBuilder
+              fields={fields}
+              filter={advancedFilter}
+              onChange={setAdvancedFilter}
+              onClear={() => setAdvancedFilter(createEmptyFilter())}
+              onSaveAsView={() => {
+                const name = `Filter (${advancedFilter.conditions.length} rules)`;
+                createView(name, viewType, { advancedFilter });
+                toast({ title: "View saved", description: `"${name}" view created with current filters.` });
+              }}
+            />
+          )}
+        </AnimatePresence>
       </div>
 
       {/* View Content */}
