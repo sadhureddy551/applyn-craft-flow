@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Settings, Building2, Palette, Globe, CreditCard, Users, Check, Crown,
-  Sparkles, Shield, Upload,
+  Sparkles, Shield, Upload, Key, Plus, Copy, Trash2, Eye, EyeOff,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -12,9 +12,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 import { useWorkspace } from '@/hooks/useWorkspace';
+import { useApiKeys } from '@/hooks/useApiKeys';
 import { PLANS, TIMEZONES, CURRENCIES, DATE_FORMATS, PlanTier } from '@/lib/workspace-types';
 import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
 
 const PLAN_ICONS: Record<PlanTier, any> = { free: Sparkles, pro: Crown, enterprise: Shield };
 const PLAN_COLORS: Record<PlanTier, string> = {
