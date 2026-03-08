@@ -20,7 +20,7 @@ import { KanbanView } from "@/components/views/KanbanView";
 import { CalendarView } from "@/components/views/CalendarView";
 import { ListView } from "@/components/views/ListView";
 import { AdvancedFilterBuilder } from "@/components/views/AdvancedFilterBuilder";
-import { createEmptyFilter } from "@/lib/filter-types";
+import { createEmptyFilter, applyAdvancedFilter } from "@/lib/filter-types";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ModuleDetailPage() {
