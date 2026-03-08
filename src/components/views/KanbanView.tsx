@@ -10,6 +10,7 @@ import { mockPipelines } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { LeadScore } from "@/lib/lead-score-types";
 import { LeadScoreBadge } from "@/components/LeadScoreBadge";
+import { RecordTagsBadges } from "@/components/records/RecordTags";
 
 interface KanbanViewProps {
   records: MockRecord[];
