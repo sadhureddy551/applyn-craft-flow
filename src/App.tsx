@@ -19,6 +19,7 @@ import FormPreviewPage from "@/pages/FormPreviewPage";
 import PlaceholderPage from "@/pages/PlaceholderPage";
 import ReportsPage from "@/pages/ReportsPage";
 import ReportDetailPage from "@/pages/ReportDetailPage";
+import SettingsPage from "@/pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
