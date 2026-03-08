@@ -7,11 +7,13 @@ import {
   Zap,
   FileText,
   BarChart3,
-  Settings,
   ChevronDown,
   Link2,
   LogOut,
   User,
+  Mail,
+  MessageCircle,
+  Plug,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
