@@ -12,8 +12,6 @@ import { InlineEditField } from "@/components/records/InlineEditField";
 import { ActivityTimeline } from "@/components/records/ActivityTimeline";
 import { RecordNotes } from "@/components/records/RecordNotes";
 import { RecordFiles } from "@/components/records/RecordFiles";
-import { EmailComposer, EmailHistory } from "@/components/records/RecordEmails";
-import { WhatsAppComposer, WhatsAppHistory } from "@/components/records/RecordWhatsApp";
 import { RelatedRecordsPanel } from "@/components/records/RelatedRecordsPanel";
 import { RecordDeleteDialog } from "@/components/records/RecordDeleteDialog";
 import { LeadScoreBadge } from "@/components/LeadScoreBadge";
