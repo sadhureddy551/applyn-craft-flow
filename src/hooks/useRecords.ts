@@ -117,6 +117,8 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
     toggleSort,
     filters,
     setFilters,
+    advancedFilter,
+    setAdvancedFilter,
     createRecord,
     updateRecord,
     deleteRecord,
