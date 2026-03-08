@@ -110,6 +110,17 @@ export function AppSidebar() {
 
         <SidebarGroup>
           {!collapsed && (
+            <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wider">Communication</p>
+          )}
+          <SidebarGroupContent>
+            <SidebarMenu>{renderNavItems(commNav)}</SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <div className="mx-3 my-2 h-px bg-sidebar-border" />
+
+        <SidebarGroup>
+          {!collapsed && (
             <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wider">Workspace</p>
           )}
           <SidebarGroupContent>

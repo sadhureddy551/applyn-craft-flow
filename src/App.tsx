@@ -47,6 +47,9 @@ const App = () => (
             <Route path="/forms/:formId/preview" element={<FormPreviewPage />} />
             <Route path="/form/:formId" element={<FormPreviewPage />} />
             <Route path="/tasks" element={<TasksPage />} />
+            <Route path="/email" element={<EmailPage />} />
+            <Route path="/whatsapp" element={<WhatsAppPage />} />
+            <Route path="/integrations" element={<IntegrationsPage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/reports/:reportId" element={<ReportDetailPage />} />
             <Route path="/settings" element={<SettingsPage />} />
