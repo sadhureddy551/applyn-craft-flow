@@ -11,6 +11,7 @@ import RecordDetailPage from "@/pages/RecordDetailPage";
 import TemplatesPage from "@/pages/TemplatesPage";
 import PipelinesPage from "@/pages/PipelinesPage";
 import AutomationsPage from "@/pages/AutomationsPage";
+import RelationshipsPage from "@/pages/RelationshipsPage";
 import PlaceholderPage from "@/pages/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 
@@ -31,7 +32,7 @@ const App = () => (
             <Route path="/templates" element={<TemplatesPage />} />
             <Route path="/pipelines" element={<PipelinesPage />} />
             <Route path="/automations" element={<AutomationsPage />} />
-            <Route path="/relationships" element={<PlaceholderPage title="Relationships" description="Link modules together to create powerful data connections" />} />
+            <Route path="/relationships" element={<RelationshipsPage />} />
             <Route path="/tasks" element={<PlaceholderPage title="Tasks" description="Manage tasks and to-dos across your CRM" />} />
             <Route path="/forms" element={<PlaceholderPage title="Forms" description="Build lead capture forms for your website" />} />
             <Route path="/reports" element={<PlaceholderPage title="Reports" description="Create custom reports with charts and analytics" />} />

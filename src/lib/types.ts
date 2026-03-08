@@ -128,3 +128,21 @@ export interface Automation {
   actions: any;
   isActive: boolean;
 }
+
+export type RelationshipType = 'one_to_many' | 'many_to_many';
+
+export interface ModuleRelationship {
+  id: string;
+  tenantId: string;
+  sourceModuleId: string;
+  targetModuleId: string;
+  relationshipType: RelationshipType;
+}
+
+export interface RecordRelation {
+  id: string;
+  tenantId: string;
+  relationshipId: string;
+  sourceRecordId: string;
+  targetRecordId: string;
+}

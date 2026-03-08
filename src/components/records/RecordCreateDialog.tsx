@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Field } from "@/lib/types";
+import { mockModules, mockRecords } from "@/lib/mock-data";
 
 interface RecordCreateDialogProps {
   open: boolean;
@@ -77,6 +78,21 @@ export function RecordCreateDialog({ open, onOpenChange, fields, onSubmit, modul
             placeholder={`Enter ${field.label.toLowerCase()}`}
           />
         );
+      case 'relation': {
+        const relModule = mockModules.find((m) => m.id === field.relationModuleId);
+        const relRecords = field.relationModuleId ? (mockRecords[field.relationModuleId] || []) : [];
+        return (
+          <Select value={values[field.fieldKey] || ''} onValueChange={(v) => setValue(field.fieldKey, v)}>
+            <SelectTrigger><SelectValue placeholder={`Select ${relModule?.name.toLowerCase() || 'record'}...`} /></SelectTrigger>
+            <SelectContent>
+              {relRecords.map((rec) => {
+                const name = Object.values(rec.values)[0];
+                return <SelectItem key={rec.id} value={rec.id}>{String(name)}</SelectItem>;
+              })}
+            </SelectContent>
+          </Select>
+        );
+      }
       default:
         return (
           <Input
