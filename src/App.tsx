@@ -17,6 +17,7 @@ import FormsPage from "@/pages/FormsPage";
 import FormBuilderPage from "@/pages/FormBuilderPage";
 import FormPreviewPage from "@/pages/FormPreviewPage";
 import PlaceholderPage from "@/pages/PlaceholderPage";
+import TasksPage from "@/pages/TasksPage";
 import ReportsPage from "@/pages/ReportsPage";
 import ReportDetailPage from "@/pages/ReportDetailPage";
 import SettingsPage from "@/pages/SettingsPage";
@@ -45,7 +46,7 @@ const App = () => (
             <Route path="/forms/:formId" element={<FormBuilderPage />} />
             <Route path="/forms/:formId/preview" element={<FormPreviewPage />} />
             <Route path="/form/:formId" element={<FormPreviewPage />} />
-            <Route path="/tasks" element={<PlaceholderPage title="Tasks" description="Manage tasks and to-dos across your CRM" />} />
+            <Route path="/tasks" element={<TasksPage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/reports/:reportId" element={<ReportDetailPage />} />
             <Route path="/settings" element={<SettingsPage />} />

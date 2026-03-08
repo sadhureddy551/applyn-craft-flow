@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Boxes, Users, Contact, Handshake, CheckSquare, Building2, Search, MoreHorizontal } from "lucide-react";
+import { Plus, Boxes, Users, Contact, Handshake, CheckSquare, Building2, Search, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { mockModules, mockRecords, mockFields } from "@/lib/mock-data";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const iconMap: Record<string, any> = {
   Users, Contact, Handshake, CheckSquare, Building2, Boxes,
@@ -19,6 +20,7 @@ export default function ModulesPage() {
   const [newName, setNewName] = useState("");
   const [newDesc, setNewDesc] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingModule, setEditingModule] = useState<string | null>(null);
 
   const filtered = modules.filter((m) => m.name.toLowerCase().includes(search.toLowerCase()));
 
@@ -32,6 +34,46 @@ export default function ModulesPage() {
     setNewName("");
     setNewDesc("");
     setDialogOpen(false);
+    toast.success("Module created");
+  };
+
+  const handleEdit = (id: string) => {
+    const mod = modules.find(m => m.id === id);
+    if (!mod) return;
+    setNewName(mod.name);
+    setNewDesc(mod.description);
+    setEditingModule(id);
+    setDialogOpen(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (!newName.trim() || !editingModule) return;
+    setModules(modules.map(m => m.id === editingModule ? { ...m, name: newName, description: newDesc } : m));
+    setNewName("");
+    setNewDesc("");
+    setEditingModule(null);
+    setDialogOpen(false);
+    toast.success("Module updated");
+  };
+
+  const handleDelete = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const mod = modules.find(m => m.id === id);
+    if (mod?.isSystem) {
+      toast.error("Cannot delete system modules");
+      return;
+    }
+    setModules(modules.filter(m => m.id !== id));
+    toast.success("Module deleted");
+  };
+
+  const handleDialogClose = (open: boolean) => {
+    setDialogOpen(open);
+    if (!open) {
+      setEditingModule(null);
+      setNewName("");
+      setNewDesc("");
+    }
   };
 
   return (
@@ -41,25 +83,27 @@ export default function ModulesPage() {
           <h1 className="text-2xl font-bold text-foreground">Modules</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Create and manage your CRM modules</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
           <DialogTrigger asChild>
             <Button className="gradient-brand text-primary-foreground shadow-brand hover:opacity-90">
               <Plus className="h-4 w-4 mr-2" /> New Module
             </Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>Create Module</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{editingModule ? 'Edit Module' : 'Create Module'}</DialogTitle></DialogHeader>
             <div className="space-y-4 pt-2">
               <div>
                 <Label>Name</Label>
                 <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Patients, Properties..." className="mt-1" />
-                {newName && <p className="text-xs text-muted-foreground mt-1">Slug: {newName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')}</p>}
+                {!editingModule && newName && <p className="text-xs text-muted-foreground mt-1">Slug: {newName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')}</p>}
               </div>
               <div>
                 <Label>Description</Label>
                 <Input value={newDesc} onChange={(e) => setNewDesc(e.target.value)} placeholder="What does this module track?" className="mt-1" />
               </div>
-              <Button onClick={handleCreate} className="w-full gradient-brand text-primary-foreground">Create Module</Button>
+              <Button onClick={editingModule ? handleSaveEdit : handleCreate} className="w-full gradient-brand text-primary-foreground">
+                {editingModule ? 'Save Changes' : 'Create Module'}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -88,9 +132,21 @@ export default function ModulesPage() {
                 <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
                   <Icon className="h-5 w-5 text-primary" />
                 </div>
-                {mod.isSystem && (
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">System</span>
-                )}
+                <div className="flex items-center gap-1">
+                  {mod.isSystem && (
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">System</span>
+                  )}
+                  <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEdit(mod.id)}>
+                      <Edit className="h-3.5 w-3.5 text-muted-foreground" />
+                    </Button>
+                    {!mod.isSystem && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => handleDelete(mod.id, e)}>
+                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </div>
               <h3 className="text-base font-semibold text-card-foreground mt-3">{mod.name}</h3>
               <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{mod.description}</p>
