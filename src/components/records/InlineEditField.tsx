@@ -11,9 +11,10 @@ interface InlineEditFieldProps {
   field: Field;
   value: any;
   onSave: (fieldKey: string, value: any) => void;
+  disabled?: boolean;
 }
 
-export function InlineEditField({ field, value, onSave }: InlineEditFieldProps) {
+export function InlineEditField({ field, value, onSave, disabled = false }: InlineEditFieldProps) {
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(value);
   const [saved, setSaved] = useState(false);
