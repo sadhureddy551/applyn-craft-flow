@@ -16,6 +16,8 @@ import FormsPage from "@/pages/FormsPage";
 import FormBuilderPage from "@/pages/FormBuilderPage";
 import FormPreviewPage from "@/pages/FormPreviewPage";
 import PlaceholderPage from "@/pages/PlaceholderPage";
+import ReportsPage from "@/pages/ReportsPage";
+import ReportDetailPage from "@/pages/ReportDetailPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,7 +43,8 @@ const App = () => (
             <Route path="/forms/:formId/preview" element={<FormPreviewPage />} />
             <Route path="/form/:formId" element={<FormPreviewPage />} />
             <Route path="/tasks" element={<PlaceholderPage title="Tasks" description="Manage tasks and to-dos across your CRM" />} />
-            <Route path="/reports" element={<PlaceholderPage title="Reports" description="Create custom reports with charts and analytics" />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/reports/:reportId" element={<ReportDetailPage />} />
             <Route path="/settings" element={<PlaceholderPage title="Settings" description="Configure your workspace, users, and permissions" />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
