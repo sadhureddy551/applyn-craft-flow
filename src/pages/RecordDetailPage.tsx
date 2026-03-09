@@ -46,14 +46,17 @@ export default function RecordDetailPage() {
   const { fields: dbFields, loading: fieldsLoading } = useFields(moduleId || '');
   const fields = useMemo(() => dbFields.map(toField), [dbFields]);
 
-  const { allRecords, getRecord, updateRecord, deleteRecord } = useRecords({ moduleId: moduleId || '' });
+  const { allRecords, getRecord, updateRecord, deleteRecord, loading: recordsLoading } = useRecords({ moduleId: moduleId || '' });
   const record = getRecord(recordId || '');
 
   const { activities, addActivity } = useRecordActivities(recordId || '');
   const { notes, addNote, deleteNote } = useRecordNotes(recordId || '');
   const { files, addFile, deleteFile } = useRecordFiles(recordId || '');
 
-  const [values, setValues] = useState<Record<string, any>>(record?.values || {});
+  const [values, setValues] = useState<Record<string, any>>({});
+  useEffect(() => {
+    if (record) setValues(record.values);
+  }, [record]);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const { logChange, getEntityLogs } = useAuditLogs();
   const auditLogs = getEntityLogs(recordId || '');
