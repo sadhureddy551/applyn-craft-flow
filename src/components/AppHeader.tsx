@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Search, Bell, Check, X, UserPlus, GitBranch, Zap, FileText, CheckSquare, ArrowRight } from 'lucide-react';
+import { Search, Bell, Check, X, UserPlus, GitBranch, Zap, FileText, CheckSquare, ArrowRight, LogOut } from 'lucide-react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { NotificationType } from '@/lib/notification-types';
 import { GlobalSearchModal } from '@/components/GlobalSearchModal';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
+import { useAuth } from '@/components/AuthProvider';
 
 const TYPE_ICONS: Record<NotificationType, any> = {
   task_assigned: CheckSquare,

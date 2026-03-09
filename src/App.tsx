@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/components/AuthProvider";
 import { AppLayout } from "@/components/AppLayout";
 import { PermissionProvider } from "@/components/PermissionProvider";
 import Dashboard from "@/pages/Dashboard";
@@ -25,6 +26,8 @@ import IntegrationsPage from "@/pages/IntegrationsPage";
 import ReportsPage from "@/pages/ReportsPage";
 import ReportDetailPage from "@/pages/ReportDetailPage";
 import SettingsPage from "@/pages/SettingsPage";
+import LoginPage from "@/pages/LoginPage";
+import SignupPage from "@/pages/SignupPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,33 +38,38 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <PermissionProvider>
-        <AppLayout>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/modules" element={<ModulesPage />} />
-            <Route path="/modules/:moduleId" element={<ModuleDetailPage />} />
-            <Route path="/modules/:moduleId/records/:recordId" element={<RecordDetailPage />} />
-            <Route path="/templates" element={<TemplatesPage />} />
-            <Route path="/pipelines" element={<PipelinesPage />} />
-            <Route path="/automations" element={<AutomationsPage />} />
-            <Route path="/automations/:automationId" element={<AutomationBuilderPage />} />
-            <Route path="/relationships" element={<RelationshipsPage />} />
-            <Route path="/forms" element={<FormsPage />} />
-            <Route path="/forms/:formId" element={<FormBuilderPage />} />
-            <Route path="/forms/:formId/preview" element={<FormPreviewPage />} />
-            <Route path="/form/:formId" element={<FormPreviewPage />} />
-            <Route path="/tasks" element={<TasksPage />} />
-            <Route path="/email" element={<EmailPage />} />
-            <Route path="/whatsapp" element={<WhatsAppPage />} />
-            <Route path="/integrations" element={<IntegrationsPage />} />
-            <Route path="/reports" element={<ReportsPage />} />
-            <Route path="/reports/:reportId" element={<ReportDetailPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AppLayout>
-        </PermissionProvider>
+        <AuthProvider>
+          <PermissionProvider>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/form/:formId" element={<FormPreviewPage />} />
+
+              {/* Protected routes inside layout */}
+              <Route path="/" element={<AppLayout><Dashboard /></AppLayout>} />
+              <Route path="/modules" element={<AppLayout><ModulesPage /></AppLayout>} />
+              <Route path="/modules/:moduleId" element={<AppLayout><ModuleDetailPage /></AppLayout>} />
+              <Route path="/modules/:moduleId/records/:recordId" element={<AppLayout><RecordDetailPage /></AppLayout>} />
+              <Route path="/templates" element={<AppLayout><TemplatesPage /></AppLayout>} />
+              <Route path="/pipelines" element={<AppLayout><PipelinesPage /></AppLayout>} />
+              <Route path="/automations" element={<AppLayout><AutomationsPage /></AppLayout>} />
+              <Route path="/automations/:automationId" element={<AppLayout><AutomationBuilderPage /></AppLayout>} />
+              <Route path="/relationships" element={<AppLayout><RelationshipsPage /></AppLayout>} />
+              <Route path="/forms" element={<AppLayout><FormsPage /></AppLayout>} />
+              <Route path="/forms/:formId" element={<AppLayout><FormBuilderPage /></AppLayout>} />
+              <Route path="/forms/:formId/preview" element={<AppLayout><FormPreviewPage /></AppLayout>} />
+              <Route path="/tasks" element={<AppLayout><TasksPage /></AppLayout>} />
+              <Route path="/email" element={<AppLayout><EmailPage /></AppLayout>} />
+              <Route path="/whatsapp" element={<AppLayout><WhatsAppPage /></AppLayout>} />
+              <Route path="/integrations" element={<AppLayout><IntegrationsPage /></AppLayout>} />
+              <Route path="/reports" element={<AppLayout><ReportsPage /></AppLayout>} />
+              <Route path="/reports/:reportId" element={<AppLayout><ReportDetailPage /></AppLayout>} />
+              <Route path="/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </PermissionProvider>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
