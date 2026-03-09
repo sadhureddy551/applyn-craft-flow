@@ -19,9 +19,8 @@ function computeScore(record: MockRecord): number {
   else if (value >= 10000) score += 10;
   else if (value > 0) score += 5;
 
-  // Factor 3: Activity count (0–20)
-  const activities = mockActivities.filter(a => a.recordId === record.id).length;
-  score += Math.min(activities * 5, 20);
+  // Factor 3: Activity count (0–20) - simplified without mock data
+  score += 10; // baseline activity score
 
   // Factor 4: Recent interaction (0–20)
   const daysSinceUpdate = (Date.now() - new Date(record.updatedAt).getTime()) / (1000 * 60 * 60 * 24);
