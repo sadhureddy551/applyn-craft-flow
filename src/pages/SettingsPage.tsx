@@ -68,10 +68,11 @@ export default function SettingsPage() {
         <TabsList className="bg-muted/50">
           <TabsTrigger value="general" className="gap-1.5"><Building2 className="h-3.5 w-3.5" />General</TabsTrigger>
           <TabsTrigger value="branding" className="gap-1.5"><Palette className="h-3.5 w-3.5" />Branding</TabsTrigger>
-          <TabsTrigger value="api" className="gap-1.5"><Key className="h-3.5 w-3.5" />API</TabsTrigger>
+          <TabsTrigger value="users" className="gap-1.5"><Users className="h-3.5 w-3.5" />Users</TabsTrigger>
+          <TabsTrigger value="teams" className="gap-1.5"><UsersRound className="h-3.5 w-3.5" />Teams</TabsTrigger>
           <TabsTrigger value="roles" className="gap-1.5"><Shield className="h-3.5 w-3.5" />Roles</TabsTrigger>
+          <TabsTrigger value="api" className="gap-1.5"><Key className="h-3.5 w-3.5" />API</TabsTrigger>
           <TabsTrigger value="billing" className="gap-1.5"><CreditCard className="h-3.5 w-3.5" />Billing</TabsTrigger>
-          <TabsTrigger value="team" className="gap-1.5"><Users className="h-3.5 w-3.5" />Team</TabsTrigger>
         </TabsList>
 
         {/* GENERAL */}
