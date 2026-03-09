@@ -3,10 +3,10 @@ import { format } from "date-fns";
 import { Send, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { MockNote } from "@/lib/mock-data";
+import { Note } from "@/hooks/useNotes";
 
 interface RecordNotesProps {
-  notes: MockNote[];
+  notes: Note[];
   onAdd: (content: string) => void;
   onDelete: (noteId: string) => void;
 }

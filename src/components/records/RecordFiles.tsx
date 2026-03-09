@@ -1,12 +1,13 @@
 import { useRef } from "react";
 import { format } from "date-fns";
-import { Upload, FileText, Trash2, Download } from "lucide-react";
+import { Upload, FileText, Trash2, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { MockFile } from "@/lib/mock-data";
+import { CrmFile } from "@/hooks/useFiles";
 
 interface RecordFilesProps {
-  files: MockFile[];
-  onAdd: (fileName: string, fileSize: number) => void;
+  files: CrmFile[];
+  uploading?: boolean;
+  onUpload: (file: File) => void;
   onDelete: (fileId: string) => void;
 }
 
@@ -16,13 +17,13 @@ function formatFileSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function RecordFiles({ files, onAdd, onDelete }: RecordFilesProps) {
+export function RecordFiles({ files, uploading, onUpload, onDelete }: RecordFilesProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      onAdd(file.name, file.size);
+      onUpload(file);
       e.target.value = '';
     }
   };
@@ -30,8 +31,9 @@ export function RecordFiles({ files, onAdd, onDelete }: RecordFilesProps) {
   return (
     <div className="space-y-3">
       <input ref={inputRef} type="file" className="hidden" onChange={handleFileChange} />
-      <Button size="sm" variant="outline" className="w-full" onClick={() => inputRef.current?.click()}>
-        <Upload className="h-3.5 w-3.5 mr-1.5" /> Upload File
+      <Button size="sm" variant="outline" className="w-full" onClick={() => inputRef.current?.click()} disabled={uploading}>
+        {uploading ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Upload className="h-3.5 w-3.5 mr-1.5" />}
+        {uploading ? 'Uploading...' : 'Upload File'}
       </Button>
 
       <div className="space-y-2">
@@ -41,12 +43,21 @@ export function RecordFiles({ files, onAdd, onDelete }: RecordFilesProps) {
               <FileText className="h-4 w-4 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate text-foreground">{file.fileName}</p>
+              <a href={file.fileUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium truncate text-foreground hover:underline block">
+                {file.fileName}
+              </a>
               <p className="text-xs text-muted-foreground">{formatFileSize(file.fileSize)} · {format(new Date(file.createdAt), 'MMM d')}</p>
             </div>
-            <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => onDelete(file.id)}>
-              <Trash2 className="h-3 w-3 text-muted-foreground" />
-            </Button>
+            <div className="flex gap-0.5">
+              <a href={file.fileUrl} target="_blank" rel="noopener noreferrer">
+                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Download className="h-3 w-3 text-muted-foreground" />
+                </Button>
+              </a>
+              <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => onDelete(file.id)}>
+                <Trash2 className="h-3 w-3 text-muted-foreground" />
+              </Button>
+            </div>
           </div>
         ))}
         {files.length === 0 && (

@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useModules, useFields, toField } from "@/hooks/useModulesCRUD";
-import { useRecords, useRecordActivities, useRecordNotes, useRecordFiles } from "@/hooks/useRecords";
+import { useRecords, useRecordActivities } from "@/hooks/useRecords";
+import { useNotes } from "@/hooks/useNotes";
+import { useFiles } from "@/hooks/useFiles";
 import { useLeadScores } from "@/hooks/useLeadScores";
 import { InlineEditField } from "@/components/records/InlineEditField";
 import { ActivityTimeline } from "@/components/records/ActivityTimeline";
@@ -50,8 +52,8 @@ export default function RecordDetailPage() {
   const record = getRecord(recordId || '');
 
   const { activities, addActivity } = useRecordActivities(recordId || '');
-  const { notes, addNote, deleteNote } = useRecordNotes(recordId || '');
-  const { files, addFile, deleteFile } = useRecordFiles(recordId || '');
+  const { notes, addNote, deleteNote } = useNotes(recordId || '');
+  const { files, uploading, uploadFile, deleteFile } = useFiles(recordId || '');
 
   const [values, setValues] = useState<Record<string, any>>({});
   useEffect(() => {
@@ -102,6 +104,15 @@ export default function RecordDetailPage() {
     deleteRecord(record.id);
     toast({ title: "Record deleted", description: `"${recordName}" has been deleted.` });
     navigate(`/modules/${moduleId}`);
+  };
+
+  const handleFileUpload = async (file: File) => {
+    try {
+      await uploadFile(file);
+      toast({ title: "File uploaded", description: `${file.name} has been attached.` });
+    } catch {
+      toast({ title: "Upload failed", description: "Could not upload file.", variant: "destructive" });
+    }
   };
 
   const contactFields = fields.filter((f) => ['email', 'phone', 'company'].includes(f.fieldKey));
@@ -198,7 +209,7 @@ export default function RecordDetailPage() {
                   <RecordNotes notes={notes} onAdd={addNote} onDelete={deleteNote} />
                 </TabsContent>
                 <TabsContent value="files" className="mt-0">
-                  <RecordFiles files={files} onAdd={addFile} onDelete={deleteFile} />
+                  <RecordFiles files={files} uploading={uploading} onUpload={handleFileUpload} onDelete={deleteFile} />
                 </TabsContent>
                 <TabsContent value="history" className="mt-0">
                   <AuditLogTimeline logs={auditLogs} />
