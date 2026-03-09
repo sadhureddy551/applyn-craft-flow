@@ -68,6 +68,7 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
   const [advancedFilter, setAdvancedFilter] = useState<AdvancedFilter>(createEmptyFilter());
   const [page, setPage] = useState(1);
   const { profile } = useAuth();
+  const { triggerAutomation } = useAutomationTrigger();
 
   // Fetch records from DB
   const fetchRecords = useCallback(async () => {
