@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Settings, Building2, Palette, Globe, CreditCard, Users, Check, Crown,
-  Sparkles, Shield, Upload, Key, Plus, Copy, Trash2, Eye, EyeOff,
+  Sparkles, Shield, Upload, Key, Plus, Copy, Trash2, Eye, EyeOff, UsersRound,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -16,6 +16,8 @@ import { Switch } from '@/components/ui/switch';
 import { useWorkspace } from '@/hooks/useWorkspace';
 import { useApiKeys } from '@/hooks/useApiKeys';
 import { RoleManagement } from '@/components/RoleManagement';
+import { UserManagement } from '@/components/UserManagement';
+import { TeamManagement } from '@/components/TeamManagement';
 import { PLANS, TIMEZONES, CURRENCIES, DATE_FORMATS, PlanTier } from '@/lib/workspace-types';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
