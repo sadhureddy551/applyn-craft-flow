@@ -28,6 +28,7 @@ import ReportDetailPage from "@/pages/ReportDetailPage";
 import SettingsPage from "@/pages/SettingsPage";
 import LoginPage from "@/pages/LoginPage";
 import SignupPage from "@/pages/SignupPage";
+import ProfilePage from "@/pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
 
               {/* Protected routes inside layout */}
               <Route path="/" element={<AppLayout><Dashboard /></AppLayout>} />
+              <Route path="/profile" element={<AppLayout><ProfilePage /></AppLayout>} />
               <Route path="/modules" element={<AppLayout><ModulesPage /></AppLayout>} />
               <Route path="/modules/:moduleId" element={<AppLayout><ModuleDetailPage /></AppLayout>} />
               <Route path="/modules/:moduleId/records/:recordId" element={<AppLayout><RecordDetailPage /></AppLayout>} />

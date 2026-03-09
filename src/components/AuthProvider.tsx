@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 interface AuthContextType {
   session: Session | null;
   user: User | null;
-  profile: { id: string; tenant_id: string; name: string; email: string; avatar_url: string | null } | null;
+  profile: { id: string; tenant_id: string; name: string; email: string; avatar_url: string | null; status: string; phone: string; timezone: string } | null;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
       .from('profiles')
-      .select('id, tenant_id, name, email, avatar_url')
+      .select('id, tenant_id, name, email, avatar_url, status, phone, timezone')
       .eq('user_id', userId)
       .maybeSingle();
     setProfile(data as AuthContextType['profile']);
