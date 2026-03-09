@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAutomations } from '@/hooks/useAutomations';
-import { mockModules } from '@/lib/mock-data';
+import { useModules } from '@/hooks/useModulesCRUD';
 import { AutomationTriggerType, TRIGGER_LABELS } from '@/lib/automation-types';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
