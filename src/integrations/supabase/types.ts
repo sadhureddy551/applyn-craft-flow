@@ -490,6 +490,134 @@ export type Database = {
           },
         ]
       }
+      module_fields: {
+        Row: {
+          created_at: string
+          field_type: string
+          id: string
+          is_required: boolean
+          label: string
+          module_id: string
+          name: string
+          options_json: Json | null
+          order_index: number
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          field_type?: string
+          id?: string
+          is_required?: boolean
+          label: string
+          module_id: string
+          name: string
+          options_json?: Json | null
+          order_index?: number
+          tenant_id?: string
+        }
+        Update: {
+          created_at?: string
+          field_type?: string
+          id?: string
+          is_required?: boolean
+          label?: string
+          module_id?: string
+          name?: string
+          options_json?: Json | null
+          order_index?: number
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "module_fields_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      module_relationships: {
+        Row: {
+          created_at: string
+          from_module_id: string
+          id: string
+          relationship_type: string
+          tenant_id: string
+          to_module_id: string
+        }
+        Insert: {
+          created_at?: string
+          from_module_id: string
+          id?: string
+          relationship_type?: string
+          tenant_id?: string
+          to_module_id: string
+        }
+        Update: {
+          created_at?: string
+          from_module_id?: string
+          id?: string
+          relationship_type?: string
+          tenant_id?: string
+          to_module_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "module_relationships_from_module_id_fkey"
+            columns: ["from_module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "module_relationships_to_module_id_fkey"
+            columns: ["to_module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      modules: {
+        Row: {
+          color: string
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          is_system: boolean
+          name: string
+          order_index: number
+          slug: string
+          tenant_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          is_system?: boolean
+          name: string
+          order_index?: number
+          slug: string
+          tenant_id?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          is_system?: boolean
+          name?: string
+          order_index?: number
+          slug?: string
+          tenant_id?: string
+        }
+        Relationships: []
+      }
       permissions: {
         Row: {
           action: string

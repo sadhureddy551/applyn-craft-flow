@@ -1,12 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Plus, Filter, Search, X, Upload, Download } from "lucide-react";
+import { ArrowLeft, Plus, Filter, Search, Upload, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { mockModules, mockFields } from "@/lib/mock-data";
+import { useModules, useFields, toField } from "@/hooks/useModulesCRUD";
 import { useRecords } from "@/hooks/useRecords";
 import { useModuleViews } from "@/hooks/useModuleViews";
 import { useLeadScores } from "@/hooks/useLeadScores";
@@ -26,13 +25,18 @@ import { useToast } from "@/hooks/use-toast";
 import { usePermission } from "@/components/PermissionProvider";
 import { ImportDialog } from "@/components/records/ImportDialog";
 import { ExportDialog } from "@/components/records/ExportDialog";
+import { FieldBuilder } from "@/components/FieldBuilder";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 export default function ModuleDetailPage() {
   const { moduleId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const mod = mockModules.find((m) => m.id === moduleId);
-  const fields = mockFields[moduleId || ''] || [];
+  const { modules, loading: modulesLoading } = useModules();
+  const mod = modules.find((m) => m.id === moduleId);
+  const { fields: dbFields, loading: fieldsLoading, createField, updateField, deleteField } = useFields(moduleId || '');
+  const fields = useMemo(() => dbFields.map(toField), [dbFields]);
   const moduleSlug = mod?.slug || '';
   const { hasPermission } = usePermission();
 
@@ -58,7 +62,6 @@ export default function ModuleDetailPage() {
   const { findDuplicates } = useDuplicateDetection(allRecords, fields);
   const { logChange } = useAuditLogs();
 
-  // Apply saved view filters when switching views
   useEffect(() => {
     if (activeView?.configJSON?.advancedFilter) {
       setAdvancedFilter(activeView.configJSON.advancedFilter);
@@ -72,9 +75,12 @@ export default function ModuleDetailPage() {
     }
   }, [activeViewId]);
 
+  if (modulesLoading || fieldsLoading) {
+    return <div className="p-6 max-w-7xl mx-auto space-y-5"><Skeleton className="h-8 w-48" /><Skeleton className="h-64 w-full" /></div>;
+  }
+
   if (!mod) return <div className="p-6 text-muted-foreground">Module not found.</div>;
 
-  const selectFields = fields.filter((f) => f.fieldType === 'select');
   const nameField = fields[0];
 
   const handleCreate = (values: Record<string, any>) => {
@@ -98,12 +104,9 @@ export default function ModuleDetailPage() {
 
   const handleMerge = (targetRecordId: string) => {
     if (!duplicateWarning) return;
-    // Merge: update existing record with non-empty new values
     const mergedValues: Record<string, any> = {};
     for (const [key, val] of Object.entries(duplicateWarning.pendingValues)) {
-      if (val !== undefined && val !== '' && val !== null) {
-        mergedValues[key] = val;
-      }
+      if (val !== undefined && val !== '' && val !== null) mergedValues[key] = val;
     }
     updateRecord(targetRecordId, mergedValues);
     setDuplicateWarning(null);
@@ -123,54 +126,56 @@ export default function ModuleDetailPage() {
     toast({ title: "Record deleted", description: "The record has been deleted." });
   };
 
-  const handleView = (recordId: string) => {
-    navigate(`/modules/${moduleId}/records/${recordId}`);
-  };
-
-  const handleDeletePrompt = (recordId: string, name: string) => {
-    setDeleteTarget({ id: recordId, name });
-  };
+  const handleView = (recordId: string) => navigate(`/modules/${moduleId}/records/${recordId}`);
+  const handleDeletePrompt = (recordId: string, name: string) => setDeleteTarget({ id: recordId, name });
 
   const viewType = activeView?.viewType || 'table';
-  // For kanban/calendar/list, use all filtered records (no pagination)
   const viewRecords = viewType === 'table' ? records : allRecords.filter((r) => {
     if (!search) return true;
     const q = search.toLowerCase();
     return Object.values(r.values).some((v) => String(v).toLowerCase().includes(q));
   }).filter((r) => {
-    if (advancedFilter.conditions.length > 0) {
-      return applyAdvancedFilter(advancedFilter, r.values);
-    }
+    if (advancedFilter.conditions.length > 0) return applyAdvancedFilter(advancedFilter, r.values);
     return Object.entries(filters).every(([key, val]) => !val || String(r.values[key]) === val);
   });
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-5">
-      {/* Header */}
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={() => navigate('/modules')}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-foreground">{mod.name}</h1>
-          <p className="text-sm text-muted-foreground">{totalCount} records</p>
+          <p className="text-sm text-muted-foreground">{totalCount} records · {fields.length} fields</p>
         </div>
         <div className="ml-auto flex gap-2">
-          <ExportDialog
-            moduleId={moduleId || ''}
-            moduleName={mod.name}
-            fields={fields}
-            records={allRecords}
-          />
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Settings2 className="h-3.5 w-3.5 mr-1.5" /> Fields
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="w-[420px] sm:w-[480px]">
+              <SheetHeader><SheetTitle>{mod.name} Fields</SheetTitle></SheetHeader>
+              <div className="mt-6">
+                <FieldBuilder
+                  fields={dbFields}
+                  onAdd={createField}
+                  onUpdate={updateField}
+                  onDelete={deleteField}
+                />
+              </div>
+            </SheetContent>
+          </Sheet>
+          <ExportDialog moduleId={moduleId || ''} moduleName={mod.name} fields={fields} records={allRecords} />
           <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
             <Upload className="h-3.5 w-3.5 mr-1.5" />Import
           </Button>
           <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
             <Filter className="h-3.5 w-3.5 mr-1.5" /> Filter
             {advancedFilter.conditions.length > 0 && (
-              <Badge variant="secondary" className="ml-1.5 h-4 px-1 text-[10px]">
-                {advancedFilter.conditions.length}
-              </Badge>
+              <Badge variant="secondary" className="ml-1.5 h-4 px-1 text-[10px]">{advancedFilter.conditions.length}</Badge>
             )}
           </Button>
           {hasPermission(moduleSlug, 'create') && (
@@ -181,7 +186,6 @@ export default function ModuleDetailPage() {
         </div>
       </div>
 
-      {/* View Switcher */}
       <ViewSwitcher
         views={views}
         activeViewId={activeViewId}
@@ -190,13 +194,9 @@ export default function ModuleDetailPage() {
           createView(name, type, { filters: { ...filters } });
           toast({ title: "View created", description: `"${name}" view has been created.` });
         }}
-        onDelete={(viewId) => {
-          deleteView(viewId);
-          toast({ title: "View deleted" });
-        }}
+        onDelete={(viewId) => { deleteView(viewId); toast({ title: "View deleted" }); }}
       />
 
-      {/* Search + Filters */}
       <div className="flex flex-col gap-3">
         <div className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -219,57 +219,23 @@ export default function ModuleDetailPage() {
         </AnimatePresence>
       </div>
 
-      {/* View Content */}
       {viewType === 'table' && (
-        <TableView
-          records={records}
-          fields={fields}
-          sortField={sortField}
-          sortDir={sortDir}
-          onSort={toggleSort}
-          page={page}
-          totalPages={totalPages}
-          totalCount={totalCount}
-          onPageChange={setPage}
-          onView={handleView}
-          onDelete={handleDeletePrompt}
+        <TableView records={records} fields={fields} sortField={sortField} sortDir={sortDir} onSort={toggleSort}
+          page={page} totalPages={totalPages} totalCount={totalCount} onPageChange={setPage}
+          onView={handleView} onDelete={handleDeletePrompt}
           visibleColumns={activeView?.configJSON?.visibleColumns}
           onVisibleColumnsChange={(cols) => updateViewConfig(activeViewId, { visibleColumns: cols })}
           scores={scores}
         />
       )}
-
       {viewType === 'kanban' && (
-        <KanbanView
-          records={viewRecords}
-          fields={fields}
-          moduleId={moduleId || ''}
-          onView={handleView}
-          onDelete={handleDeletePrompt}
-          onUpdateRecord={updateRecord}
-          scores={scores}
+        <KanbanView records={viewRecords} fields={fields} moduleId={moduleId || ''}
+          onView={handleView} onDelete={handleDeletePrompt} onUpdateRecord={updateRecord} scores={scores}
         />
       )}
+      {viewType === 'calendar' && <CalendarView records={viewRecords} fields={fields} onView={handleView} />}
+      {viewType === 'list' && <ListView records={viewRecords} fields={fields} onView={handleView} onDelete={handleDeletePrompt} scores={scores} />}
 
-      {viewType === 'calendar' && (
-        <CalendarView
-          records={viewRecords}
-          fields={fields}
-          onView={handleView}
-        />
-      )}
-
-      {viewType === 'list' && (
-        <ListView
-          records={viewRecords}
-          fields={fields}
-          onView={handleView}
-          onDelete={handleDeletePrompt}
-          scores={scores}
-        />
-      )}
-
-      {/* Dialogs */}
       <RecordCreateDialog open={createOpen} onOpenChange={setCreateOpen} fields={fields} onSubmit={handleCreate} moduleName={mod.name} />
       <ImportDialog open={importOpen} onOpenChange={setImportOpen} moduleId={moduleId || ''} moduleName={mod.name} fields={fields} />
       {deleteTarget && (
