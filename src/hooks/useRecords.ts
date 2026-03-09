@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ActivityLog } from '@/lib/types';
 import { AdvancedFilter, applyAdvancedFilter, createEmptyFilter } from '@/lib/filter-types';
 import { useAuth } from '@/components/AuthProvider';
+import { useAutomationTrigger } from '@/hooks/useAutomationTrigger';
 
 export interface CrmRecord {
   id: string;
