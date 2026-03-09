@@ -183,7 +183,7 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
     } else {
       triggerAutomation(moduleId, 'record_updated', { id: recordId, values: merged });
     }
-  }, [records]);
+  }, [records, moduleId, triggerAutomation]);
 
   const deleteRecord = useCallback(async (recordId: string) => {
     setRecords((prev) => prev.filter((r) => r.id !== recordId));

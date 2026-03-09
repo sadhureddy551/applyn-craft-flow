@@ -98,7 +98,7 @@ export default function AutomationsPage() {
       ) : (
         <div className="space-y-3">
           {automations.map((auto, i) => {
-            const mod = mockModules.find(m => m.id === auto.module_id);
+            const mod = modules.find(m => m.id === auto.module_id);
             return (
               <motion.div key={auto.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
                 <Card className="shadow-card hover:shadow-card-hover transition-shadow cursor-pointer group" onClick={() => navigate(`/automations/${auto.id}`)}>
