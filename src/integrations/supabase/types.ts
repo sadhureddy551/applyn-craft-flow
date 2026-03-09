@@ -44,6 +44,112 @@ export type Database = {
         }
         Relationships: []
       }
+      automation_actions: {
+        Row: {
+          action_config: Json
+          action_type: string
+          automation_id: string
+          created_at: string
+          id: string
+          sort_order: number
+        }
+        Insert: {
+          action_config?: Json
+          action_type: string
+          automation_id: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+        }
+        Update: {
+          action_config?: Json
+          action_type?: string
+          automation_id?: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_actions_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "automations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_conditions: {
+        Row: {
+          automation_id: string
+          created_at: string
+          field_name: string
+          id: string
+          operator: string
+          sort_order: number
+          value: string
+        }
+        Insert: {
+          automation_id: string
+          created_at?: string
+          field_name: string
+          id?: string
+          operator?: string
+          sort_order?: number
+          value?: string
+        }
+        Update: {
+          automation_id?: string
+          created_at?: string
+          field_name?: string
+          id?: string
+          operator?: string
+          sort_order?: number
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_conditions_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "automations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automations: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          module_id: string
+          name: string
+          tenant_id: string
+          trigger_event: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          module_id: string
+          name: string
+          tenant_id?: string
+          trigger_event?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          module_id?: string
+          name?: string
+          tenant_id?: string
+          trigger_event?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       crm_records: {
         Row: {
           created_at: string
