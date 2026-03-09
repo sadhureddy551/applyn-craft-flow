@@ -64,7 +64,7 @@ export default function RecordDetailPage() {
   const scores = useLeadScores(allRecords);
   const leadScore = record ? scores.get(record.id) : undefined;
 
-  if (modulesLoading || fieldsLoading) {
+  if (modulesLoading || fieldsLoading || recordsLoading) {
     return <div className="p-6 max-w-7xl mx-auto"><Skeleton className="h-48 w-full" /></div>;
   }
 
