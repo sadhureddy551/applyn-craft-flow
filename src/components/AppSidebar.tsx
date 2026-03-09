@@ -29,6 +29,7 @@ import {
 import { UserMenu } from "@/components/UserMenu";
 import { UserAvatar } from "@/components/UserAvatar";
 import { useAuth } from "@/components/AuthProvider";
+import { useWhatsAppAccount } from "@/hooks/useWhatsApp";
 
 const mainNav = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
@@ -36,11 +37,6 @@ const mainNav = [
   { title: "Templates", url: "/templates", icon: FileStack },
   { title: "Pipelines", url: "/pipelines", icon: GitBranch },
   { title: "Relationships", url: "/relationships", icon: Link2 },
-];
-
-const commNav = [
-  { title: "Email", url: "/email", icon: Mail },
-  { title: "WhatsApp", url: "/whatsapp", icon: MessageCircle },
 ];
 
 const workNav = [
@@ -59,6 +55,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const { profile } = useAuth();
+  const { account } = useWhatsAppAccount();
 
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";
@@ -112,7 +109,36 @@ export function AppSidebar() {
             <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wider">Communication</p>
           )}
           <SidebarGroupContent>
-            <SidebarMenu>{renderNavItems(commNav)}</SidebarMenu>
+            <SidebarMenu>
+              {/* Email */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive("/email")}>
+                  <NavLink to="/email" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-sidebar-accent" activeClassName="bg-sidebar-accent text-sidebar-accent-foreground">
+                    <Mail className="h-4 w-4 shrink-0" />
+                    {!collapsed && <span>Email</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {/* WhatsApp with connection status */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive("/whatsapp")}>
+                  <NavLink to="/whatsapp" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-sidebar-accent" activeClassName="bg-sidebar-accent text-sidebar-accent-foreground">
+                    <MessageCircle className="h-4 w-4 shrink-0" />
+                    {!collapsed && (
+                      <span className="flex items-center gap-2 flex-1">
+                        WhatsApp
+                        {account?.is_connected ? (
+                          <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" title="Connected" />
+                        ) : (
+                          <span className="text-[10px] text-amber-500 shrink-0" title="Not Connected">⚠</span>
+                        )}
+                      </span>
+                    )}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
