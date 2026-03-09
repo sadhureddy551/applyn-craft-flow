@@ -271,6 +271,7 @@ export default function ModuleDetailPage() {
 
       {/* Dialogs */}
       <RecordCreateDialog open={createOpen} onOpenChange={setCreateOpen} fields={fields} onSubmit={handleCreate} moduleName={mod.name} />
+      <ImportDialog open={importOpen} onOpenChange={setImportOpen} moduleId={moduleId || ''} moduleName={mod.name} fields={fields} />
       {deleteTarget && (
         <RecordDeleteDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)} recordName={deleteTarget.name} onConfirm={handleDelete} />
       )}
