@@ -349,37 +349,14 @@ export default function SettingsPage() {
           </div>
         </TabsContent>
 
-        {/* TEAM */}
-        <TabsContent value="team" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Team Members</CardTitle>
-              <CardDescription>Manage who has access to your workspace</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {[
-                { name: 'John Doe', email: 'john@company.com', role: 'Owner' },
-                { name: 'Jane Smith', email: 'jane@company.com', role: 'Admin' },
-                { name: 'Alex Turner', email: 'alex@company.com', role: 'Editor' },
-              ].map(member => (
-                <div key={member.email} className="flex items-center gap-3 py-2">
-                  <div className="h-9 w-9 rounded-full gradient-brand flex items-center justify-center shrink-0">
-                    <span className="text-xs font-semibold text-primary-foreground">{member.name.split(' ').map(n => n[0]).join('')}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground">{member.name}</p>
-                    <p className="text-xs text-muted-foreground">{member.email}</p>
-                  </div>
-                  <Badge variant="secondary" className="text-[10px]">{member.role}</Badge>
-                </div>
-              ))}
-              <Separator />
-              <div className="flex gap-2">
-                <Input placeholder="Email address" className="flex-1" />
-                <Button variant="outline">Invite</Button>
-              </div>
-            </CardContent>
-          </Card>
+        {/* USERS */}
+        <TabsContent value="users">
+          <UserManagement />
+        </TabsContent>
+
+        {/* TEAMS */}
+        <TabsContent value="teams">
+          <TeamManagement />
         </TabsContent>
 
         {/* ROLES & PERMISSIONS */}
