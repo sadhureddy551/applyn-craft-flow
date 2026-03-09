@@ -366,6 +366,86 @@ export type Database = {
           },
         ]
       }
+      import_errors: {
+        Row: {
+          created_at: string
+          error_message: string
+          id: string
+          job_id: string
+          row_data: Json | null
+          row_number: number
+        }
+        Insert: {
+          created_at?: string
+          error_message: string
+          id?: string
+          job_id: string
+          row_data?: Json | null
+          row_number: number
+        }
+        Update: {
+          created_at?: string
+          error_message?: string
+          id?: string
+          job_id?: string
+          row_data?: Json | null
+          row_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_errors_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "import_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_jobs: {
+        Row: {
+          column_mapping: Json
+          completed_at: string | null
+          created_at: string
+          failed_rows: number
+          file_name: string
+          id: string
+          module_id: string
+          processed_rows: number
+          status: string
+          success_rows: number
+          tenant_id: string
+          total_rows: number
+        }
+        Insert: {
+          column_mapping?: Json
+          completed_at?: string | null
+          created_at?: string
+          failed_rows?: number
+          file_name?: string
+          id?: string
+          module_id: string
+          processed_rows?: number
+          status?: string
+          success_rows?: number
+          tenant_id?: string
+          total_rows?: number
+        }
+        Update: {
+          column_mapping?: Json
+          completed_at?: string | null
+          created_at?: string
+          failed_rows?: number
+          file_name?: string
+          id?: string
+          module_id?: string
+          processed_rows?: number
+          status?: string
+          success_rows?: number
+          tenant_id?: string
+          total_rows?: number
+        }
+        Relationships: []
+      }
       invitations: {
         Row: {
           accepted: boolean
