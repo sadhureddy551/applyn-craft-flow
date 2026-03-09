@@ -130,40 +130,17 @@ export function AppSidebar() {
 
       <SidebarFooter className="px-2 pb-4">
         <SidebarMenu>{renderNavItems(bottomNav)}</SidebarMenu>
-        {!collapsed && (
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className="w-full mx-1 mt-3 p-3 rounded-xl bg-muted/50 border border-border hover:bg-muted/80 transition-colors text-left">
-                <div className="flex items-center gap-2.5">
-                  <div className="h-8 w-8 rounded-full gradient-brand flex items-center justify-center shrink-0">
-                    <span className="text-xs font-semibold text-primary-foreground">{initials}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate text-foreground">{profile?.name || 'User'}</p>
-                    <p className="text-xs text-muted-foreground truncate">{profile?.email || ''}</p>
-                  </div>
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                </div>
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-56 p-1" align="start" side="top" sideOffset={8}>
-              <button
-                onClick={() => navigate('/settings')}
-                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
-              >
-                <User className="h-4 w-4 text-muted-foreground" />
-                Profile & Settings
-              </button>
-              <div className="h-px bg-border my-1" />
-              <button
-                onClick={signOut}
-                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-destructive hover:bg-destructive/10 transition-colors"
-              >
-                <LogOut className="h-4 w-4" />
-                Sign Out
-              </button>
-            </PopoverContent>
-          </Popover>
+        {!collapsed ? (
+          <UserMenu />
+        ) : (
+          <div className="flex justify-center mt-3">
+            <UserAvatar
+              name={profile?.name || 'User'}
+              avatarUrl={profile?.avatar_url}
+              status="online"
+              size="sm"
+            />
+          </div>
         )}
       </SidebarFooter>
     </Sidebar>
