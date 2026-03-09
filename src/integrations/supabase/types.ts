@@ -369,6 +369,47 @@ export type Database = {
           },
         ]
       }
+      files: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_size: number
+          file_url: string
+          id: string
+          record_id: string
+          tenant_id: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_size?: number
+          file_url: string
+          id?: string
+          record_id: string
+          tenant_id?: string
+          uploaded_by?: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_size?: number
+          file_url?: string
+          id?: string
+          record_id?: string
+          tenant_id?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "files_record_id_fkey"
+            columns: ["record_id"]
+            isOneToOne: false
+            referencedRelation: "crm_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       import_errors: {
         Row: {
           created_at: string
@@ -621,6 +662,41 @@ export type Database = {
         }
         Relationships: []
       }
+      notes: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+          record_id: string
+          tenant_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          record_id: string
+          tenant_id?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          record_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notes_record_id_fkey"
+            columns: ["record_id"]
+            isOneToOne: false
+            referencedRelation: "crm_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       permissions: {
         Row: {
           action: string
@@ -821,6 +897,59 @@ export type Database = {
           tenant_id?: string
         }
         Relationships: []
+      }
+      tasks: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          created_by: string
+          description: string
+          due_date: string | null
+          id: string
+          priority: string
+          record_id: string | null
+          status: string
+          tenant_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string
+          due_date?: string | null
+          id?: string
+          priority?: string
+          record_id?: string | null
+          status?: string
+          tenant_id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string
+          due_date?: string | null
+          id?: string
+          priority?: string
+          record_id?: string | null
+          status?: string
+          tenant_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_record_id_fkey"
+            columns: ["record_id"]
+            isOneToOne: false
+            referencedRelation: "crm_records"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       team_members: {
         Row: {
