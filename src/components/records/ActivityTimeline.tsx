@@ -1,13 +1,13 @@
 import { format } from "date-fns";
 import { GitBranch, Plus, Edit3, ArrowUpRight, ArrowDownLeft, MessageCircle, StickyNote } from "lucide-react";
 import { ActivityLog } from "@/lib/types";
-import { Email } from "@/lib/email-types";
+import { SyncedEmail } from "@/lib/email-sync-types";
 import { WhatsAppMessage } from "@/lib/whatsapp-types";
 import { Note } from "@/hooks/useNotes";
 
 type TimelineItem =
   | { kind: 'activity'; data: ActivityLog; date: Date }
-  | { kind: 'email'; data: Email; date: Date }
+  | { kind: 'email'; data: SyncedEmail; date: Date }
   | { kind: 'whatsapp'; data: WhatsAppMessage; date: Date }
   | { kind: 'note'; data: Note; date: Date };
 
@@ -19,7 +19,7 @@ const typeConfig: Record<string, { icon: typeof Plus; color: string }> = {
 
 interface ActivityTimelineProps {
   activities: ActivityLog[];
-  emails?: Email[];
+  emails?: SyncedEmail[];
   whatsAppMessages?: WhatsAppMessage[];
   notes?: Note[];
 }
@@ -27,7 +27,7 @@ interface ActivityTimelineProps {
 export function ActivityTimeline({ activities, emails = [], whatsAppMessages = [], notes = [] }: ActivityTimelineProps) {
   const items: TimelineItem[] = [
     ...activities.map((a) => ({ kind: 'activity' as const, data: a, date: new Date(a.createdAt) })),
-    ...emails.map((e) => ({ kind: 'email' as const, data: e, date: new Date(e.sentAt) })),
+    ...emails.map((e) => ({ kind: 'email' as const, data: e, date: new Date(e.sent_at) })),
     ...whatsAppMessages.map((m) => ({ kind: 'whatsapp' as const, data: m, date: new Date(m.sentAt) })),
     ...notes.map((n) => ({ kind: 'note' as const, data: n, date: new Date(n.createdAt) })),
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
