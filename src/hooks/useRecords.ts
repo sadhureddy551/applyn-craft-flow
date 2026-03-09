@@ -154,8 +154,10 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
       values,
     };
     setRecords((prev) => [rec, ...prev]);
+    // Fire automation trigger asynchronously
+    triggerAutomation(moduleId, 'record_created', { id: rec.id, values });
     return rec;
-  }, [moduleId, profile]);
+  }, [moduleId, profile, triggerAutomation]);
 
   const updateRecord = useCallback(async (recordId: string, values: Record<string, any>) => {
     // Optimistic update
