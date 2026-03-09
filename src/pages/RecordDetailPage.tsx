@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Mail, Phone, Building2, User, Clock, Trash2 } from "lucide-react";
@@ -46,14 +46,17 @@ export default function RecordDetailPage() {
   const { fields: dbFields, loading: fieldsLoading } = useFields(moduleId || '');
   const fields = useMemo(() => dbFields.map(toField), [dbFields]);
 
-  const { allRecords, getRecord, updateRecord, deleteRecord } = useRecords({ moduleId: moduleId || '' });
+  const { allRecords, getRecord, updateRecord, deleteRecord, loading: recordsLoading } = useRecords({ moduleId: moduleId || '' });
   const record = getRecord(recordId || '');
 
   const { activities, addActivity } = useRecordActivities(recordId || '');
   const { notes, addNote, deleteNote } = useRecordNotes(recordId || '');
   const { files, addFile, deleteFile } = useRecordFiles(recordId || '');
 
-  const [values, setValues] = useState<Record<string, any>>(record?.values || {});
+  const [values, setValues] = useState<Record<string, any>>({});
+  useEffect(() => {
+    if (record) setValues(record.values);
+  }, [record]);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const { logChange, getEntityLogs } = useAuditLogs();
   const auditLogs = getEntityLogs(recordId || '');
@@ -61,7 +64,7 @@ export default function RecordDetailPage() {
   const scores = useLeadScores(allRecords);
   const leadScore = record ? scores.get(record.id) : undefined;
 
-  if (modulesLoading || fieldsLoading) {
+  if (modulesLoading || fieldsLoading || recordsLoading) {
     return <div className="p-6 max-w-7xl mx-auto"><Skeleton className="h-48 w-full" /></div>;
   }
 

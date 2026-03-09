@@ -83,14 +83,14 @@ export default function ModuleDetailPage() {
 
   const nameField = fields[0];
 
-  const handleCreate = (values: Record<string, any>) => {
+  const handleCreate = async (values: Record<string, any>) => {
     const duplicates = findDuplicates(values);
     if (duplicates.length > 0) {
       setCreateOpen(false);
       setDuplicateWarning({ duplicates, pendingValues: values });
       return;
     }
-    const rec = createRecord(values);
+    const rec = await createRecord(values);
     logChange('record', rec.id, 'create', { newValue: values[nameField?.fieldKey] || 'New record' });
     toast({ title: "Record created", description: `New ${mod.name.toLowerCase().slice(0, -1)} has been created.` });
   };
