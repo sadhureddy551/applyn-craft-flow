@@ -61,7 +61,7 @@ export default function AutomationsPage() {
                 <Label>Module</Label>
                 <Select value={moduleId} onValueChange={setModuleId}>
                   <SelectTrigger><SelectValue placeholder="Select module" /></SelectTrigger>
-                  <SelectContent>{mockModules.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent>
+                  <SelectContent>{modules.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div>
