@@ -63,21 +63,21 @@ export function ActivityTimeline({ activities, emails = [], whatsAppMessages = [
 
         if (item.kind === 'email') {
           const email = item.data;
-          const isSent = email.direction === 'sent';
+          const isOutgoing = email.direction === 'outgoing';
           return (
             <div key={email.id} className="flex gap-3 py-2.5">
               <div className="flex flex-col items-center">
-                <div className={`h-6 w-6 rounded-full flex items-center justify-center shrink-0 ${isSent ? 'bg-primary/10' : 'bg-accent/10'}`}>
-                  {isSent ? <ArrowUpRight className="h-3 w-3 text-primary" /> : <ArrowDownLeft className="h-3 w-3 text-accent" />}
+                <div className={`h-6 w-6 rounded-full flex items-center justify-center shrink-0 ${isOutgoing ? 'bg-primary/10' : 'bg-accent/10'}`}>
+                  {isOutgoing ? <ArrowUpRight className="h-3 w-3 text-primary" /> : <ArrowDownLeft className="h-3 w-3 text-accent" />}
                 </div>
                 {i < items.length - 1 && <div className="w-px flex-1 bg-border mt-1" />}
               </div>
               <div className="flex-1 min-w-0 pb-1">
                 <p className="text-sm text-foreground">
-                  {isSent ? 'Sent' : 'Received'} email: <span className="font-medium">{email.subject}</span>
+                  {isOutgoing ? 'Sent' : 'Received'} email: <span className="font-medium">{email.subject}</span>
                 </p>
                 <div className="flex gap-2 text-xs text-muted-foreground mt-0.5">
-                  <span>{isSent ? `To: ${email.to}` : `From: ${email.from}`}</span>
+                  <span>{isOutgoing ? `To: ${(email.to_emails as string[])?.[0] || ''}` : `From: ${email.from_email}`}</span>
                   <span>·</span>
                   <span>{format(item.date, 'MMM d, h:mm a')}</span>
                 </div>
