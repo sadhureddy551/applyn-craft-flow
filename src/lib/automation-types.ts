@@ -1,33 +1,38 @@
 export type AutomationTriggerType = 'record_created' | 'record_updated' | 'stage_changed' | 'form_submitted';
 
-export type ConditionOperator = 'equals' | 'not_equals' | 'contains' | 'gt' | 'lt' | 'is_empty' | 'is_not_empty' | 'date_before' | 'date_after';
+export type ConditionOperator = 'equals' | 'not_equals' | 'contains' | 'greater_than' | 'less_than';
 
-export type AutomationActionType = 'assign_owner' | 'send_email' | 'create_task' | 'update_field' | 'send_webhook';
+export type AutomationActionType = 'assign_owner' | 'send_email' | 'send_whatsapp' | 'create_task' | 'update_field';
 
 export interface AutomationCondition {
   id: string;
-  fieldKey: string;
+  automation_id?: string;
+  field_name: string;
   operator: ConditionOperator;
   value: string;
+  sort_order: number;
 }
 
 export interface AutomationAction {
   id: string;
-  type: AutomationActionType;
-  config: Record<string, string>;
+  automation_id?: string;
+  action_type: AutomationActionType;
+  action_config: Record<string, string>;
+  sort_order: number;
 }
 
 export interface Automation {
   id: string;
-  tenantId: string;
-  moduleId: string;
+  tenant_id: string;
+  module_id: string;
   name: string;
-  triggerType: AutomationTriggerType;
-  conditionsJSON: AutomationCondition[];
-  actionsJSON: AutomationAction[];
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  trigger_event: AutomationTriggerType;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  // Joined data
+  conditions?: AutomationCondition[];
+  actions?: AutomationAction[];
 }
 
 export const TRIGGER_LABELS: Record<AutomationTriggerType, string> = {
@@ -40,19 +45,15 @@ export const TRIGGER_LABELS: Record<AutomationTriggerType, string> = {
 export const ACTION_LABELS: Record<AutomationActionType, string> = {
   assign_owner: 'Assign Owner',
   send_email: 'Send Email',
+  send_whatsapp: 'Send WhatsApp',
   create_task: 'Create Task',
   update_field: 'Update Field',
-  send_webhook: 'Send Webhook',
 };
 
 export const CONDITION_OPERATOR_LABELS: Record<ConditionOperator, string> = {
   equals: 'Equals',
   not_equals: 'Does not equal',
   contains: 'Contains',
-  gt: 'Greater than',
-  lt: 'Less than',
-  is_empty: 'Is empty',
-  is_not_empty: 'Is not empty',
-  date_before: 'Date is before',
-  date_after: 'Date is after',
+  greater_than: 'Greater than',
+  less_than: 'Less than',
 };
