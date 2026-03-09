@@ -597,6 +597,30 @@ export type Database = {
         }
         Relationships: []
       }
+      installed_templates: {
+        Row: {
+          id: string
+          installed_at: string
+          template_name: string
+          template_slug: string
+          tenant_id: string
+        }
+        Insert: {
+          id?: string
+          installed_at?: string
+          template_name: string
+          template_slug: string
+          tenant_id?: string
+        }
+        Update: {
+          id?: string
+          installed_at?: string
+          template_name?: string
+          template_slug?: string
+          tenant_id?: string
+        }
+        Relationships: []
+      }
       invitations: {
         Row: {
           accepted: boolean
