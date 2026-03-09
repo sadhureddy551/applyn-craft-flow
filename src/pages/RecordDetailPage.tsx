@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Mail, Phone, Building2, User, Clock, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { mockModules, mockFields, mockRecords } from "@/lib/mock-data";
-import { useRecordActivities, useRecordNotes, useRecordFiles } from "@/hooks/useRecords";
+import { useModules, useFields, toField } from "@/hooks/useModulesCRUD";
+import { useRecords, useRecordActivities, useRecordNotes, useRecordFiles } from "@/hooks/useRecords";
 import { useLeadScores } from "@/hooks/useLeadScores";
 import { InlineEditField } from "@/components/records/InlineEditField";
 import { ActivityTimeline } from "@/components/records/ActivityTimeline";
@@ -20,15 +20,16 @@ import { AuditLogTimeline } from "@/components/records/AuditLogTimeline";
 import { useAuditLogs } from "@/hooks/useAuditLogs";
 import { useToast } from "@/hooks/use-toast";
 import { usePermission } from "@/components/PermissionProvider";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const stageColors: Record<string, string> = {
-  New: 'bg-brand-blue/10 text-brand-blue border-brand-blue/20',
-  Contacted: 'bg-brand-purple/10 text-brand-purple border-brand-purple/20',
-  Proposal: 'bg-brand-indigo/10 text-brand-indigo border-brand-indigo/20',
-  Negotiation: 'bg-accent/10 text-accent border-accent/20',
-  'Closed Won': 'bg-accent/10 text-accent border-accent/20',
-  Qualified: 'bg-accent/10 text-accent border-accent/20',
-  Discovery: 'bg-brand-blue/10 text-brand-blue border-brand-blue/20',
+  New: 'bg-primary/10 text-primary border-primary/20',
+  Contacted: 'bg-secondary/50 text-secondary-foreground border-secondary',
+  Proposal: 'bg-accent/10 text-accent-foreground border-accent/20',
+  Negotiation: 'bg-accent/10 text-accent-foreground border-accent/20',
+  'Closed Won': 'bg-accent/10 text-accent-foreground border-accent/20',
+  Qualified: 'bg-accent/10 text-accent-foreground border-accent/20',
+  Discovery: 'bg-primary/10 text-primary border-primary/20',
 };
 
 export default function RecordDetailPage() {
@@ -36,14 +37,17 @@ export default function RecordDetailPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const mod = mockModules.find((m) => m.id === moduleId);
+  const { modules, loading: modulesLoading } = useModules();
+  const mod = modules.find((m) => m.id === moduleId);
   const moduleSlug = mod?.slug || '';
   const { hasPermission } = usePermission();
   const canEdit = hasPermission(moduleSlug, 'edit');
   const canDelete = hasPermission(moduleSlug, 'delete');
-  const fields = mockFields[moduleId || ''] || [];
-  const allRecords = mockRecords[moduleId || ''] || [];
-  const record = allRecords.find((r) => r.id === recordId);
+  const { fields: dbFields, loading: fieldsLoading } = useFields(moduleId || '');
+  const fields = useMemo(() => dbFields.map(toField), [dbFields]);
+
+  const { allRecords, getRecord, updateRecord, deleteRecord } = useRecords({ moduleId: moduleId || '' });
+  const record = getRecord(recordId || '');
 
   const { activities, addActivity } = useRecordActivities(recordId || '');
   const { notes, addNote, deleteNote } = useRecordNotes(recordId || '');
@@ -56,6 +60,10 @@ export default function RecordDetailPage() {
 
   const scores = useLeadScores(allRecords);
   const leadScore = record ? scores.get(record.id) : undefined;
+
+  if (modulesLoading || fieldsLoading) {
+    return <div className="p-6 max-w-7xl mx-auto"><Skeleton className="h-48 w-full" /></div>;
+  }
 
   if (!mod || !record) {
     return (
@@ -76,6 +84,7 @@ export default function RecordDetailPage() {
   const handleFieldSave = (fieldKey: string, newValue: any) => {
     const oldValue = values[fieldKey];
     setValues((prev) => ({ ...prev, [fieldKey]: newValue }));
+    updateRecord(record.id, { [fieldKey]: newValue });
     const field = fields.find((f) => f.fieldKey === fieldKey);
     addActivity('field_updated', `${field?.label || fieldKey} changed from "${oldValue || 'empty'}" to "${newValue}"`);
     logChange('record', recordId || '', 'update', {
@@ -87,6 +96,7 @@ export default function RecordDetailPage() {
   };
 
   const handleDelete = () => {
+    deleteRecord(record.id);
     toast({ title: "Record deleted", description: `"${recordName}" has been deleted.` });
     navigate(`/modules/${moduleId}`);
   };
@@ -102,7 +112,6 @@ export default function RecordDetailPage() {
         </Button>
       </div>
 
-      {/* Business Card */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-border bg-card shadow-card p-6">
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-4">
@@ -124,9 +133,7 @@ export default function RecordDetailPage() {
                 <span className="text-xs text-muted-foreground flex items-center gap-1"><User className="h-3 w-3" /> {record.createdBy}</span>
                 <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" /> {new Date(record.createdAt).toLocaleDateString()}</span>
               </div>
-              <div className="mt-2">
-                <RecordTagsManager recordId={recordId || ''} />
-              </div>
+              <div className="mt-2"><RecordTagsManager recordId={recordId || ''} /></div>
             </div>
           </div>
           {canDelete && (
@@ -137,7 +144,6 @@ export default function RecordDetailPage() {
         </div>
       </motion.div>
 
-      {/* Main Content + Sidebar */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           {contactFields.length > 0 && (
@@ -166,14 +172,12 @@ export default function RecordDetailPage() {
             </div>
           </motion.div>
 
-          {/* Related Records */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-xl border border-border bg-card shadow-card p-5">
             <h3 className="text-sm font-semibold text-foreground mb-3">Related Records</h3>
             <RelatedRecordsPanel recordId={recordId || ''} moduleId={moduleId || ''} />
           </motion.div>
         </div>
 
-        {/* Right Sidebar */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-0">
           <div className="rounded-xl border border-border bg-card shadow-card overflow-hidden">
             <Tabs defaultValue="activity" className="w-full">

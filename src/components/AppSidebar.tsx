@@ -30,6 +30,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useAuth } from "@/components/AuthProvider";
 
 const mainNav = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
@@ -60,6 +61,11 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const navigate = useNavigate();
+  const { profile, signOut } = useAuth();
+
+  const initials = profile?.name
+    ? profile.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+    : '??';
 
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";
@@ -137,11 +143,11 @@ export function AppSidebar() {
               <button className="w-full mx-1 mt-3 p-3 rounded-xl bg-muted/50 border border-border hover:bg-muted/80 transition-colors text-left">
                 <div className="flex items-center gap-2.5">
                   <div className="h-8 w-8 rounded-full gradient-brand flex items-center justify-center shrink-0">
-                    <span className="text-xs font-semibold text-primary-foreground">JD</span>
+                    <span className="text-xs font-semibold text-primary-foreground">{initials}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate text-foreground">John Doe</p>
-                    <p className="text-xs text-muted-foreground truncate">john@company.com</p>
+                    <p className="text-sm font-medium truncate text-foreground">{profile?.name || 'User'}</p>
+                    <p className="text-xs text-muted-foreground truncate">{profile?.email || ''}</p>
                   </div>
                   <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 </div>
@@ -157,6 +163,7 @@ export function AppSidebar() {
               </button>
               <div className="h-px bg-border my-1" />
               <button
+                onClick={signOut}
                 className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-destructive hover:bg-destructive/10 transition-colors"
               >
                 <LogOut className="h-4 w-4" />

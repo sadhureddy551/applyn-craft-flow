@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Field } from "@/lib/types";
-import { mockModules, mockRecords } from "@/lib/mock-data";
 
 interface RecordCreateDialogProps {
   open: boolean;
@@ -51,6 +51,37 @@ export function RecordCreateDialog({ open, onOpenChange, fields, onSubmit, modul
             </SelectContent>
           </Select>
         );
+      case 'multiselect':
+        return (
+          <div className="flex flex-wrap gap-2">
+            {field.options?.map((opt) => {
+              const selected = (values[field.fieldKey] || []) as string[];
+              const isChecked = selected.includes(opt);
+              return (
+                <label key={opt} className="flex items-center gap-1.5 text-sm cursor-pointer">
+                  <Checkbox
+                    checked={isChecked}
+                    onCheckedChange={(checked) => {
+                      const next = checked ? [...selected, opt] : selected.filter(s => s !== opt);
+                      setValue(field.fieldKey, next);
+                    }}
+                  />
+                  {opt}
+                </label>
+              );
+            })}
+          </div>
+        );
+      case 'checkbox':
+        return (
+          <div className="flex items-center gap-2">
+            <Checkbox
+              checked={!!values[field.fieldKey]}
+              onCheckedChange={(c) => setValue(field.fieldKey, !!c)}
+            />
+            <span className="text-sm text-muted-foreground">{field.label}</span>
+          </div>
+        );
       case 'number':
       case 'currency':
         return (
@@ -63,44 +94,19 @@ export function RecordCreateDialog({ open, onOpenChange, fields, onSubmit, modul
         );
       case 'date':
         return (
-          <Input
-            type="date"
-            value={values[field.fieldKey] || ''}
-            onChange={(e) => setValue(field.fieldKey, e.target.value)}
-          />
+          <Input type="date" value={values[field.fieldKey] || ''} onChange={(e) => setValue(field.fieldKey, e.target.value)} />
         );
       case 'email':
         return (
-          <Input
-            type="email"
-            value={values[field.fieldKey] || ''}
-            onChange={(e) => setValue(field.fieldKey, e.target.value)}
-            placeholder={`Enter ${field.label.toLowerCase()}`}
-          />
+          <Input type="email" value={values[field.fieldKey] || ''} onChange={(e) => setValue(field.fieldKey, e.target.value)} placeholder={`Enter ${field.label.toLowerCase()}`} />
         );
-      case 'relation': {
-        const relModule = mockModules.find((m) => m.id === field.relationModuleId);
-        const relRecords = field.relationModuleId ? (mockRecords[field.relationModuleId] || []) : [];
+      case 'phone':
         return (
-          <Select value={values[field.fieldKey] || ''} onValueChange={(v) => setValue(field.fieldKey, v)}>
-            <SelectTrigger><SelectValue placeholder={`Select ${relModule?.name.toLowerCase() || 'record'}...`} /></SelectTrigger>
-            <SelectContent>
-              {relRecords.map((rec) => {
-                const name = Object.values(rec.values)[0];
-                return <SelectItem key={rec.id} value={rec.id}>{String(name)}</SelectItem>;
-              })}
-            </SelectContent>
-          </Select>
+          <Input type="tel" value={values[field.fieldKey] || ''} onChange={(e) => setValue(field.fieldKey, e.target.value)} placeholder={`Enter ${field.label.toLowerCase()}`} />
         );
-      }
       default:
         return (
-          <Input
-            type="text"
-            value={values[field.fieldKey] || ''}
-            onChange={(e) => setValue(field.fieldKey, e.target.value)}
-            placeholder={`Enter ${field.label.toLowerCase()}`}
-          />
+          <Input type="text" value={values[field.fieldKey] || ''} onChange={(e) => setValue(field.fieldKey, e.target.value)} placeholder={`Enter ${field.label.toLowerCase()}`} />
         );
     }
   };
@@ -111,25 +117,27 @@ export function RecordCreateDialog({ open, onOpenChange, fields, onSubmit, modul
         <DialogHeader>
           <DialogTitle>Create {moduleName} Record</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
-          {fields.map((field) => (
-            <div key={field.id} className="space-y-1.5">
-              <Label className="text-sm font-medium">
-                {field.label}
-                {field.isRequired && <span className="text-destructive ml-1">*</span>}
-              </Label>
-              {renderField(field)}
-            </div>
-          ))}
-          <div className="flex gap-2 pt-2">
-            <Button type="button" variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" className="flex-1 gradient-brand text-primary-foreground">
-              Create Record
-            </Button>
+        {fields.length === 0 ? (
+          <div className="py-8 text-center text-sm text-muted-foreground">
+            No fields defined for this module yet. Add fields first using the Fields panel.
           </div>
-        </form>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+            {fields.map((field) => (
+              <div key={field.id} className="space-y-1.5">
+                <Label className="text-sm font-medium">
+                  {field.label}
+                  {field.isRequired && <span className="text-destructive ml-1">*</span>}
+                </Label>
+                {renderField(field)}
+              </div>
+            ))}
+            <div className="flex gap-2 pt-2">
+              <Button type="button" variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>Cancel</Button>
+              <Button type="submit" className="flex-1 gradient-brand text-primary-foreground">Create Record</Button>
+            </div>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );
