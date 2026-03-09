@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Search, Bell, Check, X, UserPlus, GitBranch, Zap, FileText, CheckSquare, ArrowRight } from 'lucide-react';
+import { Search, Bell, Check, X, UserPlus, GitBranch, Zap, FileText, CheckSquare, ArrowRight, LogOut } from 'lucide-react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { NotificationType } from '@/lib/notification-types';
 import { GlobalSearchModal } from '@/components/GlobalSearchModal';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
+import { useAuth } from '@/components/AuthProvider';
 
 const TYPE_ICONS: Record<NotificationType, any> = {
   task_assigned: CheckSquare,
@@ -29,6 +30,7 @@ const TYPE_COLORS: Record<NotificationType, string> = {
 
 export function AppHeader() {
   const { notifications, unreadCount, markAsRead, markAllAsRead, dismiss } = useNotifications();
+  const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
 
@@ -61,7 +63,7 @@ export function AppHeader() {
 
       <GlobalSearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
 
-      {/* Notifications */}
+      {/* Notifications & User */}
       <div className="flex items-center gap-2 ml-auto">
         <Popover>
           <PopoverTrigger asChild>
@@ -114,6 +116,16 @@ export function AppHeader() {
             </ScrollArea>
           </PopoverContent>
         </Popover>
+
+        {profile && (
+          <span className="text-sm text-muted-foreground hidden sm:inline truncate max-w-[140px]">
+            {profile.name || profile.email}
+          </span>
+        )}
+
+        <Button variant="ghost" size="icon" onClick={signOut} className="text-muted-foreground hover:text-foreground" title="Sign out">
+          <LogOut className="h-4 w-4" />
+        </Button>
       </div>
     </header>
   );
