@@ -10,10 +10,12 @@ import { useRecords, useRecordActivities } from "@/hooks/useRecords";
 import { useNotes } from "@/hooks/useNotes";
 import { useFiles } from "@/hooks/useFiles";
 import { useLeadScores } from "@/hooks/useLeadScores";
+import { useRecordEmails } from "@/hooks/useRecordEmails";
 import { InlineEditField } from "@/components/records/InlineEditField";
 import { ActivityTimeline } from "@/components/records/ActivityTimeline";
 import { RecordNotes } from "@/components/records/RecordNotes";
 import { RecordFiles } from "@/components/records/RecordFiles";
+import { EmailComposer, EmailHistory } from "@/components/records/RecordEmails";
 import { RelatedRecordsPanel } from "@/components/records/RelatedRecordsPanel";
 import { RecordDeleteDialog } from "@/components/records/RecordDeleteDialog";
 import { LeadScoreBadge } from "@/components/LeadScoreBadge";
@@ -54,6 +56,7 @@ export default function RecordDetailPage() {
   const { activities, addActivity } = useRecordActivities(recordId || '');
   const { notes, addNote, deleteNote } = useNotes(recordId || '');
   const { files, uploading, uploadFile, deleteFile } = useFiles(recordId || '');
+  const { emails: recordEmails, loading: emailsLoading, refetch: refetchEmails, unlinkEmail } = useRecordEmails(recordId || '');
 
   const [values, setValues] = useState<Record<string, any>>({});
   useEffect(() => {
@@ -197,13 +200,22 @@ export default function RecordDetailPage() {
             <Tabs defaultValue="activity" className="w-full">
               <TabsList className="w-full rounded-none border-b border-border bg-muted/30 h-auto p-0 flex-wrap">
                 <TabsTrigger value="activity" className="flex-1 rounded-none text-xs py-2.5 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary">Activity</TabsTrigger>
+                <TabsTrigger value="emails" className="flex-1 rounded-none text-xs py-2.5 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary">
+                  Emails {recordEmails.length > 0 && <Badge variant="secondary" className="ml-1 h-4 px-1 text-[9px]">{recordEmails.length}</Badge>}
+                </TabsTrigger>
                 <TabsTrigger value="notes" className="flex-1 rounded-none text-xs py-2.5 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary">Notes</TabsTrigger>
                 <TabsTrigger value="files" className="flex-1 rounded-none text-xs py-2.5 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary">Files</TabsTrigger>
                 <TabsTrigger value="history" className="flex-1 rounded-none text-xs py-2.5 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary">History</TabsTrigger>
               </TabsList>
               <div className="p-4">
                 <TabsContent value="activity" className="mt-0">
-                  <ActivityTimeline activities={activities} emails={[]} whatsAppMessages={[]} notes={notes} />
+                  <ActivityTimeline activities={activities} emails={recordEmails} whatsAppMessages={[]} notes={notes} />
+                </TabsContent>
+                <TabsContent value="emails" className="mt-0">
+                  <div className="space-y-4">
+                    <EmailComposer recipientEmail={email} onSent={refetchEmails} />
+                    <EmailHistory emails={recordEmails} loading={emailsLoading} onUnlink={unlinkEmail} />
+                  </div>
                 </TabsContent>
                 <TabsContent value="notes" className="mt-0">
                   <RecordNotes notes={notes} onAdd={addNote} onDelete={deleteNote} />

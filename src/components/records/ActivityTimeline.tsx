@@ -1,13 +1,13 @@
 import { format } from "date-fns";
 import { GitBranch, Plus, Edit3, ArrowUpRight, ArrowDownLeft, MessageCircle, StickyNote } from "lucide-react";
 import { ActivityLog } from "@/lib/types";
-import { Email } from "@/lib/email-types";
+import { SyncedEmail } from "@/lib/email-sync-types";
 import { WhatsAppMessage } from "@/lib/whatsapp-types";
 import { Note } from "@/hooks/useNotes";
 
 type TimelineItem =
   | { kind: 'activity'; data: ActivityLog; date: Date }
-  | { kind: 'email'; data: Email; date: Date }
+  | { kind: 'email'; data: SyncedEmail; date: Date }
   | { kind: 'whatsapp'; data: WhatsAppMessage; date: Date }
   | { kind: 'note'; data: Note; date: Date };
 
@@ -19,7 +19,7 @@ const typeConfig: Record<string, { icon: typeof Plus; color: string }> = {
 
 interface ActivityTimelineProps {
   activities: ActivityLog[];
-  emails?: Email[];
+  emails?: SyncedEmail[];
   whatsAppMessages?: WhatsAppMessage[];
   notes?: Note[];
 }
@@ -27,7 +27,7 @@ interface ActivityTimelineProps {
 export function ActivityTimeline({ activities, emails = [], whatsAppMessages = [], notes = [] }: ActivityTimelineProps) {
   const items: TimelineItem[] = [
     ...activities.map((a) => ({ kind: 'activity' as const, data: a, date: new Date(a.createdAt) })),
-    ...emails.map((e) => ({ kind: 'email' as const, data: e, date: new Date(e.sentAt) })),
+    ...emails.map((e) => ({ kind: 'email' as const, data: e, date: new Date(e.sent_at) })),
     ...whatsAppMessages.map((m) => ({ kind: 'whatsapp' as const, data: m, date: new Date(m.sentAt) })),
     ...notes.map((n) => ({ kind: 'note' as const, data: n, date: new Date(n.createdAt) })),
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
@@ -63,21 +63,21 @@ export function ActivityTimeline({ activities, emails = [], whatsAppMessages = [
 
         if (item.kind === 'email') {
           const email = item.data;
-          const isSent = email.direction === 'sent';
+          const isOutgoing = email.direction === 'outgoing';
           return (
             <div key={email.id} className="flex gap-3 py-2.5">
               <div className="flex flex-col items-center">
-                <div className={`h-6 w-6 rounded-full flex items-center justify-center shrink-0 ${isSent ? 'bg-primary/10' : 'bg-accent/10'}`}>
-                  {isSent ? <ArrowUpRight className="h-3 w-3 text-primary" /> : <ArrowDownLeft className="h-3 w-3 text-accent" />}
+                <div className={`h-6 w-6 rounded-full flex items-center justify-center shrink-0 ${isOutgoing ? 'bg-primary/10' : 'bg-accent/10'}`}>
+                  {isOutgoing ? <ArrowUpRight className="h-3 w-3 text-primary" /> : <ArrowDownLeft className="h-3 w-3 text-accent" />}
                 </div>
                 {i < items.length - 1 && <div className="w-px flex-1 bg-border mt-1" />}
               </div>
               <div className="flex-1 min-w-0 pb-1">
                 <p className="text-sm text-foreground">
-                  {isSent ? 'Sent' : 'Received'} email: <span className="font-medium">{email.subject}</span>
+                  {isOutgoing ? 'Sent' : 'Received'} email: <span className="font-medium">{email.subject}</span>
                 </p>
                 <div className="flex gap-2 text-xs text-muted-foreground mt-0.5">
-                  <span>{isSent ? `To: ${email.to}` : `From: ${email.from}`}</span>
+                  <span>{isOutgoing ? `To: ${(email.to_emails as string[])?.[0] || ''}` : `From: ${email.from_email}`}</span>
                   <span>·</span>
                   <span>{format(item.date, 'MMM d, h:mm a')}</span>
                 </div>
