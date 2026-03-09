@@ -120,7 +120,7 @@ function WidgetRenderer({ widget }: { widget: DashboardWidget }) {
 }
 
 export default function Dashboard() {
-  const { dashboards, addWidget, removeWidget, reorderWidgets, resizeWidget } = useDashboards();
+  const { dashboards, loading, addWidget, removeWidget, reorderWidgets, resizeWidget } = useDashboards();
   const dashboard = dashboards[0];
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -133,6 +133,7 @@ export default function Dashboard() {
   const dragItem = useRef<number | null>(null);
   const dragOver = useRef<number | null>(null);
 
+  if (loading) return <div className="p-6 flex items-center justify-center min-h-[50vh]"><p className="text-muted-foreground">Loading dashboard...</p></div>;
   if (!dashboard) return null;
 
   const sorted = [...dashboard.widgets].sort((a, b) => a.orderIndex - b.orderIndex);
