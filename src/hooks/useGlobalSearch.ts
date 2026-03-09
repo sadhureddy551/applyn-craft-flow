@@ -166,7 +166,7 @@ export function useRecentSearches() {
       localStorage.setItem('crm_recent_searches', JSON.stringify(next));
 
       // Also save to DB
-      supabase.from('recent_searches').insert({ query }).then(() => {});
+      (supabase as any).from('recent_searches').insert({ query }).then(() => {});
 
       return next;
     });
