@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Send } from 'lucide-react';
-import { Button } from '@/components/ui/input';
 import { Input } from '@/components/ui/input';
 
 interface Props {
