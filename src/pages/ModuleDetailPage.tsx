@@ -49,6 +49,7 @@ export default function ModuleDetailPage() {
   } = useModuleViews(moduleId || '');
 
   const [createOpen, setCreateOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [duplicateWarning, setDuplicateWarning] = useState<{ duplicates: DuplicateMatch[]; pendingValues: Record<string, any> } | null>(null);
