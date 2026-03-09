@@ -156,6 +156,15 @@ export default function ModuleDetailPage() {
           <p className="text-sm text-muted-foreground">{totalCount} records</p>
         </div>
         <div className="ml-auto flex gap-2">
+          <ExportDialog
+            moduleId={moduleId || ''}
+            moduleName={mod.name}
+            fields={fields}
+            records={allRecords}
+          />
+          <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+            <Upload className="h-3.5 w-3.5 mr-1.5" />Import
+          </Button>
           <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
             <Filter className="h-3.5 w-3.5 mr-1.5" /> Filter
             {advancedFilter.conditions.length > 0 && (
