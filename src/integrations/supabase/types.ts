@@ -228,6 +228,68 @@ export type Database = {
         }
         Relationships: []
       }
+      dashboard_widgets: {
+        Row: {
+          col_span: number
+          config_json: Json
+          created_at: string
+          dashboard_id: string
+          id: string
+          order_index: number
+          widget_type: string
+        }
+        Insert: {
+          col_span?: number
+          config_json?: Json
+          created_at?: string
+          dashboard_id: string
+          id?: string
+          order_index?: number
+          widget_type?: string
+        }
+        Update: {
+          col_span?: number
+          config_json?: Json
+          created_at?: string
+          dashboard_id?: string
+          id?: string
+          order_index?: number
+          widget_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dashboard_widgets_dashboard_id_fkey"
+            columns: ["dashboard_id"]
+            isOneToOne: false
+            referencedRelation: "dashboards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dashboards: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_accounts: {
         Row: {
           access_token: string | null
@@ -889,6 +951,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      reports: {
+        Row: {
+          chart_type: string
+          created_at: string
+          filters_json: Json
+          group_by: string
+          id: string
+          is_dashboard_widget: boolean
+          metrics: Json
+          module_id: string
+          name: string
+          schedule_cron: string | null
+          schedule_email: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          chart_type?: string
+          created_at?: string
+          filters_json?: Json
+          group_by?: string
+          id?: string
+          is_dashboard_widget?: boolean
+          metrics?: Json
+          module_id: string
+          name: string
+          schedule_cron?: string | null
+          schedule_email?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Update: {
+          chart_type?: string
+          created_at?: string
+          filters_json?: Json
+          group_by?: string
+          id?: string
+          is_dashboard_widget?: boolean
+          metrics?: Json
+          module_id?: string
+          name?: string
+          schedule_cron?: string | null
+          schedule_email?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       role_permissions: {
         Row: {
