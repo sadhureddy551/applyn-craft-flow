@@ -1260,6 +1260,7 @@ export type Database = {
           display_phone_number: string
           id: string
           is_active: boolean
+          is_connected: boolean
           phone_number_id: string
           tenant_id: string
           webhook_verify_token: string
@@ -1271,6 +1272,7 @@ export type Database = {
           display_phone_number: string
           id?: string
           is_active?: boolean
+          is_connected?: boolean
           phone_number_id: string
           tenant_id?: string
           webhook_verify_token?: string
@@ -1282,6 +1284,7 @@ export type Database = {
           display_phone_number?: string
           id?: string
           is_active?: boolean
+          is_connected?: boolean
           phone_number_id?: string
           tenant_id?: string
           webhook_verify_token?: string
@@ -1291,10 +1294,12 @@ export type Database = {
       whatsapp_conversations: {
         Row: {
           account_id: string
+          contact_id: string | null
           contact_name: string | null
           contact_phone: string
           created_at: string
           id: string
+          last_message: string | null
           last_message_at: string
           module_name: string | null
           record_id: string | null
@@ -1303,10 +1308,12 @@ export type Database = {
         }
         Insert: {
           account_id: string
+          contact_id?: string | null
           contact_name?: string | null
           contact_phone: string
           created_at?: string
           id?: string
+          last_message?: string | null
           last_message_at?: string
           module_name?: string | null
           record_id?: string | null
@@ -1315,10 +1322,12 @@ export type Database = {
         }
         Update: {
           account_id?: string
+          contact_id?: string | null
           contact_name?: string | null
           contact_phone?: string
           created_at?: string
           id?: string
+          last_message?: string | null
           last_message_at?: string
           module_name?: string | null
           record_id?: string | null
