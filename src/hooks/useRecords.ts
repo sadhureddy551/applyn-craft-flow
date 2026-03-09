@@ -1,7 +1,35 @@
 import { useState, useCallback, useMemo } from 'react';
-import { mockRecords, mockActivities, mockNotes, mockFiles, type MockRecord, type MockNote, type MockFile } from '@/lib/mock-data';
 import { ActivityLog } from '@/lib/types';
 import { AdvancedFilter, applyAdvancedFilter, createEmptyFilter } from '@/lib/filter-types';
+
+export interface MockRecord {
+  id: string;
+  moduleId: string;
+  tenantId: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  stage?: string;
+  values: Record<string, any>;
+}
+
+export interface MockNote {
+  id: string;
+  recordId: string;
+  content: string;
+  createdBy: string;
+  createdAt: string;
+}
+
+export interface MockFile {
+  id: string;
+  recordId: string;
+  fileName: string;
+  fileUrl: string;
+  fileSize: number;
+  uploadedBy: string;
+  createdAt: string;
+}
 
 type SortDirection = 'asc' | 'desc';
 
@@ -11,7 +39,7 @@ interface UseRecordsOptions {
 }
 
 export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
-  const [records, setRecords] = useState<MockRecord[]>(mockRecords[moduleId] || []);
+  const [records, setRecords] = useState<MockRecord[]>([]);
   const [search, setSearch] = useState('');
   const [sortField, setSortField] = useState<string>('');
   const [sortDir, setSortDir] = useState<SortDirection>('asc');
@@ -22,29 +50,23 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
   const filtered = useMemo(() => {
     let result = [...records];
 
-    // Search
     if (search) {
       const q = search.toLowerCase();
       result = result.filter((r) =>
-        Object.values(r.values).some((v) =>
-          String(v).toLowerCase().includes(q)
-        )
+        Object.values(r.values).some((v) => String(v).toLowerCase().includes(q))
       );
     }
 
-    // Simple filters (legacy)
     Object.entries(filters).forEach(([key, value]) => {
       if (value) {
         result = result.filter((r) => String(r.values[key]) === value);
       }
     });
 
-    // Advanced filters
     if (advancedFilter.conditions.length > 0) {
       result = result.filter((r) => applyAdvancedFilter(advancedFilter, r.values));
     }
 
-    // Sort
     if (sortField) {
       result.sort((a, b) => {
         const aVal = a.values[sortField] ?? '';
@@ -76,7 +98,7 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
       id: `r-${Date.now()}`,
       moduleId,
       tenantId: 't1',
-      createdBy: 'John Doe',
+      createdBy: 'Current User',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       values,
@@ -127,9 +149,7 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
 }
 
 export function useRecordActivities(recordId: string) {
-  const [activities, setActivities] = useState<ActivityLog[]>(
-    mockActivities.filter((a) => a.recordId === recordId)
-  );
+  const [activities, setActivities] = useState<ActivityLog[]>([]);
 
   const addActivity = useCallback((type: ActivityLog['type'], message: string) => {
     const newActivity: ActivityLog = {
@@ -138,7 +158,7 @@ export function useRecordActivities(recordId: string) {
       recordId,
       type,
       message,
-      createdBy: 'John Doe',
+      createdBy: 'Current User',
       createdAt: new Date().toISOString(),
     };
     setActivities((prev) => [newActivity, ...prev]);
@@ -148,16 +168,14 @@ export function useRecordActivities(recordId: string) {
 }
 
 export function useRecordNotes(recordId: string) {
-  const [notes, setNotes] = useState<MockNote[]>(
-    mockNotes.filter((n) => n.recordId === recordId)
-  );
+  const [notes, setNotes] = useState<MockNote[]>([]);
 
   const addNote = useCallback((content: string) => {
     const newNote: MockNote = {
       id: `n-${Date.now()}`,
       recordId,
       content,
-      createdBy: 'John Doe',
+      createdBy: 'Current User',
       createdAt: new Date().toISOString(),
     };
     setNotes((prev) => [newNote, ...prev]);
@@ -171,9 +189,7 @@ export function useRecordNotes(recordId: string) {
 }
 
 export function useRecordFiles(recordId: string) {
-  const [files, setFiles] = useState<MockFile[]>(
-    mockFiles.filter((f) => f.recordId === recordId)
-  );
+  const [files, setFiles] = useState<MockFile[]>([]);
 
   const addFile = useCallback((fileName: string, fileSize: number) => {
     const newFile: MockFile = {
@@ -182,7 +198,7 @@ export function useRecordFiles(recordId: string) {
       fileName,
       fileUrl: '#',
       fileSize,
-      uploadedBy: 'John Doe',
+      uploadedBy: 'Current User',
       createdAt: new Date().toISOString(),
     };
     setFiles((prev) => [newFile, ...prev]);
