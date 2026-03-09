@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Settings, Building2, Palette, Globe, CreditCard, Users, Check, Crown,
-  Sparkles, Shield, Upload, Key, Plus, Copy, Trash2, Eye, EyeOff,
+  Sparkles, Shield, Upload, Key, Plus, Copy, Trash2, Eye, EyeOff, UsersRound,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -16,6 +16,8 @@ import { Switch } from '@/components/ui/switch';
 import { useWorkspace } from '@/hooks/useWorkspace';
 import { useApiKeys } from '@/hooks/useApiKeys';
 import { RoleManagement } from '@/components/RoleManagement';
+import { UserManagement } from '@/components/UserManagement';
+import { TeamManagement } from '@/components/TeamManagement';
 import { PLANS, TIMEZONES, CURRENCIES, DATE_FORMATS, PlanTier } from '@/lib/workspace-types';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -66,10 +68,11 @@ export default function SettingsPage() {
         <TabsList className="bg-muted/50">
           <TabsTrigger value="general" className="gap-1.5"><Building2 className="h-3.5 w-3.5" />General</TabsTrigger>
           <TabsTrigger value="branding" className="gap-1.5"><Palette className="h-3.5 w-3.5" />Branding</TabsTrigger>
-          <TabsTrigger value="api" className="gap-1.5"><Key className="h-3.5 w-3.5" />API</TabsTrigger>
+          <TabsTrigger value="users" className="gap-1.5"><Users className="h-3.5 w-3.5" />Users</TabsTrigger>
+          <TabsTrigger value="teams" className="gap-1.5"><UsersRound className="h-3.5 w-3.5" />Teams</TabsTrigger>
           <TabsTrigger value="roles" className="gap-1.5"><Shield className="h-3.5 w-3.5" />Roles</TabsTrigger>
+          <TabsTrigger value="api" className="gap-1.5"><Key className="h-3.5 w-3.5" />API</TabsTrigger>
           <TabsTrigger value="billing" className="gap-1.5"><CreditCard className="h-3.5 w-3.5" />Billing</TabsTrigger>
-          <TabsTrigger value="team" className="gap-1.5"><Users className="h-3.5 w-3.5" />Team</TabsTrigger>
         </TabsList>
 
         {/* GENERAL */}
@@ -346,37 +349,14 @@ export default function SettingsPage() {
           </div>
         </TabsContent>
 
-        {/* TEAM */}
-        <TabsContent value="team" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Team Members</CardTitle>
-              <CardDescription>Manage who has access to your workspace</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {[
-                { name: 'John Doe', email: 'john@company.com', role: 'Owner' },
-                { name: 'Jane Smith', email: 'jane@company.com', role: 'Admin' },
-                { name: 'Alex Turner', email: 'alex@company.com', role: 'Editor' },
-              ].map(member => (
-                <div key={member.email} className="flex items-center gap-3 py-2">
-                  <div className="h-9 w-9 rounded-full gradient-brand flex items-center justify-center shrink-0">
-                    <span className="text-xs font-semibold text-primary-foreground">{member.name.split(' ').map(n => n[0]).join('')}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground">{member.name}</p>
-                    <p className="text-xs text-muted-foreground">{member.email}</p>
-                  </div>
-                  <Badge variant="secondary" className="text-[10px]">{member.role}</Badge>
-                </div>
-              ))}
-              <Separator />
-              <div className="flex gap-2">
-                <Input placeholder="Email address" className="flex-1" />
-                <Button variant="outline">Invite</Button>
-              </div>
-            </CardContent>
-          </Card>
+        {/* USERS */}
+        <TabsContent value="users">
+          <UserManagement />
+        </TabsContent>
+
+        {/* TEAMS */}
+        <TabsContent value="teams">
+          <TeamManagement />
         </TabsContent>
 
         {/* ROLES & PERMISSIONS */}
