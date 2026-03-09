@@ -366,6 +366,50 @@ export type Database = {
           },
         ]
       }
+      invitations: {
+        Row: {
+          accepted: boolean
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string | null
+          role_id: string | null
+          tenant_id: string
+          token: string
+        }
+        Insert: {
+          accepted?: boolean
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          role_id?: string | null
+          tenant_id?: string
+          token?: string
+        }
+        Update: {
+          accepted?: boolean
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          role_id?: string | null
+          tenant_id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitations_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       permissions: {
         Row: {
           action: string
@@ -381,6 +425,42 @@ export type Database = {
           action?: string
           id?: string
           module_name?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          status: string
+          tenant_id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          name?: string
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -414,6 +494,66 @@ export type Database = {
         ]
       }
       roles: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          tenant_id?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          tenant_id?: string
+        }
+        Relationships: []
+      }
+      team_members: {
+        Row: {
+          created_at: string
+          id: string
+          profile_id: string
+          team_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          profile_id: string
+          team_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          profile_id?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teams: {
         Row: {
           created_at: string
           description: string | null
