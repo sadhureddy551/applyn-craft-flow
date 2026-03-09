@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function AutomationsPage() {
   const { automations, loading, createAutomation, deleteAutomation, toggleActive } = useAutomations();
+  const { modules } = useModules();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
