@@ -1,73 +1,60 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { mockPipelines, mockRecords } from "@/lib/mock-data";
 import { Plus, Edit, Trash2, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { Pipeline, PipelineStage } from "@/lib/types";
+import { usePipelines } from "@/hooks/usePipelines";
+import { useModules } from "@/hooks/useModulesCRUD";
 
 const DEFAULT_COLORS = ['#6366f1', '#3b82f6', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6'];
 
 export default function PipelinesPage() {
-  const [pipelines, setPipelines] = useState<Pipeline[]>(mockPipelines);
-  const [activePipelineId, setActivePipelineId] = useState(pipelines[0]?.id || '');
-  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const { pipelines, loading, createPipeline, updatePipeline, deletePipeline } = usePipelines();
+  const { modules } = useModules();
+  const [activePipelineId, setActivePipelineId] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState("");
+  const [selectedModuleId, setSelectedModuleId] = useState("");
   const [stages, setStages] = useState<{ name: string; color: string }[]>([
     { name: "New", color: DEFAULT_COLORS[0] },
     { name: "In Progress", color: DEFAULT_COLORS[1] },
     { name: "Done", color: DEFAULT_COLORS[3] },
   ]);
 
-  const activePipeline = pipelines.find(p => p.id === activePipelineId);
-  const records = mockRecords['1'] || [];
-  const [recordStages, setRecordStages] = useState<Record<string, string>>(
-    Object.fromEntries(records.map((r: any) => [r.id, r.stage]))
-  );
+  // Auto-select first pipeline
+  const effectiveActiveId = activePipelineId || pipelines[0]?.id || '';
+  const activePipeline = pipelines.find(p => p.id === effectiveActiveId);
 
-  const getRecordsForStage = (stageName: string) =>
-    records.filter((r: any) => recordStages[r.id] === stageName);
-
-  const handleDragStart = (recordId: string) => setDraggedId(recordId);
-  const handleDrop = (stageName: string) => {
-    if (draggedId) {
-      setRecordStages((prev) => ({ ...prev, [draggedId]: stageName }));
-      setDraggedId(null);
-    }
-  };
-
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name.trim() || stages.length === 0) return;
-    const pipelineStages: PipelineStage[] = stages.map((s, i) => ({
-      id: `stg-${Date.now()}-${i}`, pipelineId: editingId || `pip-${Date.now()}`, stageName: s.name, color: s.color, orderIndex: i,
-    }));
     if (editingId) {
-      setPipelines(pipelines.map(p => p.id === editingId ? { ...p, name, stages: pipelineStages } : p));
+      await updatePipeline(editingId, name, stages);
       toast.success("Pipeline updated");
     } else {
-      const newPipeline: Pipeline = { id: `pip-${Date.now()}`, tenantId: 't1', name, moduleId: '1', stages: pipelineStages };
-      setPipelines([...pipelines, newPipeline]);
-      setActivePipelineId(newPipeline.id);
+      if (!selectedModuleId) { toast.error("Select a module"); return; }
+      await createPipeline(name, selectedModuleId, stages);
       toast.success("Pipeline created");
     }
     resetDialog();
   };
 
-  const handleEdit = (pipeline: Pipeline) => {
+  const handleEdit = (pipeline: typeof pipelines[0]) => {
     setName(pipeline.name);
-    setStages(pipeline.stages.map(s => ({ name: s.stageName, color: s.color })));
+    setSelectedModuleId(pipeline.moduleId);
+    setStages(pipeline.stages.map(s => ({ name: s.name, color: s.color })));
     setEditingId(pipeline.id);
     setDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    setPipelines(pipelines.filter(p => p.id !== id));
-    if (activePipelineId === id) setActivePipelineId(pipelines[0]?.id || '');
+  const handleDelete = async (id: string) => {
+    await deletePipeline(id);
+    if (effectiveActiveId === id) setActivePipelineId('');
     toast.success("Pipeline deleted");
   };
 
@@ -75,6 +62,7 @@ export default function PipelinesPage() {
     setDialogOpen(false);
     setEditingId(null);
     setName("");
+    setSelectedModuleId("");
     setStages([
       { name: "New", color: DEFAULT_COLORS[0] },
       { name: "In Progress", color: DEFAULT_COLORS[1] },
@@ -86,6 +74,10 @@ export default function PipelinesPage() {
   const removeStage = (i: number) => setStages(stages.filter((_, idx) => idx !== i));
   const updateStage = (i: number, field: 'name' | 'color', value: string) =>
     setStages(stages.map((s, idx) => idx === i ? { ...s, [field]: value } : s));
+
+  if (loading) {
+    return <div className="p-6 max-w-full mx-auto space-y-6"><Skeleton className="h-8 w-48" /><Skeleton className="h-64 w-full" /></div>;
+  }
 
   return (
     <div className="p-6 max-w-full mx-auto space-y-6">
@@ -104,6 +96,17 @@ export default function PipelinesPage() {
             <DialogHeader><DialogTitle>{editingId ? 'Edit Pipeline' : 'Create Pipeline'}</DialogTitle></DialogHeader>
             <div className="space-y-4 pt-2">
               <div><Label>Pipeline Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Sales Pipeline" className="mt-1" /></div>
+              {!editingId && (
+                <div>
+                  <Label>Module</Label>
+                  <Select value={selectedModuleId} onValueChange={setSelectedModuleId}>
+                    <SelectTrigger className="mt-1"><SelectValue placeholder="Select module" /></SelectTrigger>
+                    <SelectContent>
+                      {modules.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <Label>Stages</Label>
@@ -130,71 +133,60 @@ export default function PipelinesPage() {
         </Dialog>
       </div>
 
-      {/* Pipeline tabs */}
-      <div className="flex items-center gap-2 flex-wrap">
-        {pipelines.map(p => (
-          <div key={p.id} className="flex items-center gap-1">
-            <button
-              onClick={() => setActivePipelineId(p.id)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                activePipelineId === p.id ? 'gradient-brand text-primary-foreground' : 'bg-muted text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {p.name}
-            </button>
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleEdit(p)}>
-              <Edit className="h-3 w-3 text-muted-foreground" />
-            </Button>
-            {pipelines.length > 1 && (
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDelete(p.id)}>
-                <Trash2 className="h-3 w-3 text-destructive" />
-              </Button>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Kanban */}
-      {activePipeline && (
-        <div className="flex gap-4 overflow-x-auto pb-4">
-          {activePipeline.stages.map((stage, si) => {
-            const stageRecords = getRecordsForStage(stage.stageName);
-            return (
-              <motion.div
-                key={stage.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: si * 0.05 }}
-                className="flex-shrink-0 w-72"
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={() => handleDrop(stage.stageName)}
-              >
-                <div className="flex items-center gap-2 mb-3 px-1">
-                  <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: stage.color }} />
-                  <h3 className="text-sm font-semibold text-foreground">{stage.stageName}</h3>
-                  <span className="text-xs text-muted-foreground ml-auto">{stageRecords.length}</span>
-                </div>
-                <div className="space-y-2 min-h-[200px] p-2 rounded-xl bg-muted/30 border border-border/50">
-                  {stageRecords.map((rec: any) => (
-                    <div
-                      key={rec.id}
-                      draggable
-                      onDragStart={() => handleDragStart(rec.id)}
-                      className="rounded-lg border border-border bg-card p-3.5 shadow-card hover:shadow-card-hover transition-shadow cursor-grab active:cursor-grabbing"
-                    >
-                      <p className="text-sm font-medium text-card-foreground">{rec.values.full_name}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{rec.values.company}</p>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-xs font-medium text-accent">${Number(rec.values.value).toLocaleString()}</span>
-                        <span className="text-[10px] text-muted-foreground">{rec.values.source}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            );
-          })}
+      {pipelines.length === 0 ? (
+        <div className="text-center py-16 text-muted-foreground">
+          <p className="text-lg font-medium">No pipelines yet</p>
+          <p className="text-sm mt-1">Create your first pipeline to get started.</p>
         </div>
+      ) : (
+        <>
+          {/* Pipeline tabs */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {pipelines.map(p => (
+              <div key={p.id} className="flex items-center gap-1">
+                <button
+                  onClick={() => setActivePipelineId(p.id)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    effectiveActiveId === p.id ? 'gradient-brand text-primary-foreground' : 'bg-muted text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {p.name}
+                </button>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleEdit(p)}>
+                  <Edit className="h-3 w-3 text-muted-foreground" />
+                </Button>
+                {pipelines.length > 1 && (
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDelete(p.id)}>
+                    <Trash2 className="h-3 w-3 text-destructive" />
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Stage preview */}
+          {activePipeline && (
+            <div className="flex gap-4 overflow-x-auto pb-4">
+              {activePipeline.stages.map((stage, si) => (
+                <motion.div
+                  key={stage.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: si * 0.05 }}
+                  className="flex-shrink-0 w-72"
+                >
+                  <div className="flex items-center gap-2 mb-3 px-1">
+                    <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: stage.color }} />
+                    <h3 className="text-sm font-semibold text-foreground">{stage.name}</h3>
+                  </div>
+                  <div className="min-h-[100px] p-2 rounded-xl bg-muted/30 border border-border/50">
+                    <p className="py-8 text-center text-xs text-muted-foreground">No records</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
