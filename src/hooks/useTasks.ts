@@ -71,7 +71,7 @@ export function useTasks(recordId?: string) {
     if (updates.priority !== undefined) dbUpdates.priority = updates.priority;
     if (updates.dueDate !== undefined) dbUpdates.due_date = updates.dueDate;
     
-    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, ...updates } : t));
+    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, ...updates } as Task : t));
     await supabase.from('tasks').update(dbUpdates).eq('id', taskId);
   }, []);
 
