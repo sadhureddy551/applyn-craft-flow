@@ -63,7 +63,7 @@ export function AppHeader() {
 
       <GlobalSearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
 
-      {/* Notifications */}
+      {/* Notifications & User */}
       <div className="flex items-center gap-2 ml-auto">
         <Popover>
           <PopoverTrigger asChild>
@@ -116,6 +116,16 @@ export function AppHeader() {
             </ScrollArea>
           </PopoverContent>
         </Popover>
+
+        {profile && (
+          <span className="text-sm text-muted-foreground hidden sm:inline truncate max-w-[140px]">
+            {profile.name || profile.email}
+          </span>
+        )}
+
+        <Button variant="ghost" size="icon" onClick={signOut} className="text-muted-foreground hover:text-foreground" title="Sign out">
+          <LogOut className="h-4 w-4" />
+        </Button>
       </div>
     </header>
   );
