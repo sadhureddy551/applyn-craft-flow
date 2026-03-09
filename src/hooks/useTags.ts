@@ -1,10 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface Tag {
   id: string;
   tenantId: string;
   name: string;
-  color: string; // HSL-based tailwind token key
+  color: string;
 }
 
 export interface RecordTag {
@@ -13,87 +14,75 @@ export interface RecordTag {
   tagId: string;
 }
 
-const TAG_COLORS = [
-  { key: 'blue', bg: 'bg-brand-blue/10', text: 'text-brand-blue', dot: 'bg-brand-blue' },
-  { key: 'purple', bg: 'bg-brand-purple/10', text: 'text-brand-purple', dot: 'bg-brand-purple' },
-  { key: 'green', bg: 'bg-accent/10', text: 'text-accent', dot: 'bg-accent' },
+export const TAG_COLORS = [
+  { key: 'blue', bg: 'bg-primary/10', text: 'text-primary', dot: 'bg-primary' },
+  { key: 'purple', bg: 'bg-secondary/50', text: 'text-secondary-foreground', dot: 'bg-secondary' },
+  { key: 'green', bg: 'bg-accent/10', text: 'text-accent-foreground', dot: 'bg-accent' },
   { key: 'red', bg: 'bg-destructive/10', text: 'text-destructive', dot: 'bg-destructive' },
-  { key: 'amber', bg: 'bg-[hsl(38,92%,50%)]/10', text: 'text-[hsl(38,92%,50%)]', dot: 'bg-[hsl(38,92%,50%)]' },
-  { key: 'indigo', bg: 'bg-brand-indigo/10', text: 'text-brand-indigo', dot: 'bg-brand-indigo' },
+  { key: 'amber', bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground' },
+  { key: 'indigo', bg: 'bg-primary/10', text: 'text-primary', dot: 'bg-primary' },
 ];
 
 export function getTagColorClasses(colorKey: string) {
   return TAG_COLORS.find((c) => c.key === colorKey) || TAG_COLORS[0];
 }
 
-export { TAG_COLORS };
-
-const defaultTags: Tag[] = [
-  { id: 'tag-1', tenantId: 't1', name: 'VIP', color: 'purple' },
-  { id: 'tag-2', tenantId: 't1', name: 'Follow Up', color: 'amber' },
-  { id: 'tag-3', tenantId: 't1', name: 'Urgent', color: 'red' },
-  { id: 'tag-4', tenantId: 't1', name: 'Partner', color: 'blue' },
-  { id: 'tag-5', tenantId: 't1', name: 'Enterprise', color: 'green' },
-];
-
-const defaultRecordTags: RecordTag[] = [
-  { id: 'rt-1', recordId: 'r1', tagId: 'tag-1' },
-  { id: 'rt-2', recordId: 'r1', tagId: 'tag-3' },
-  { id: 'rt-3', recordId: 'r2', tagId: 'tag-2' },
-  { id: 'rt-4', recordId: 'r3', tagId: 'tag-5' },
-  { id: 'rt-5', recordId: 'r4', tagId: 'tag-4' },
-];
-
-// Singleton state so tags persist across hook instances
-let globalTags = [...defaultTags];
-let globalRecordTags = [...defaultRecordTags];
-let listeners: Set<() => void> = new Set();
-
-function notify() {
-  listeners.forEach((l) => l());
-}
-
+// DB-backed tag system using record_tags table
 export function useTags() {
-  const [, forceUpdate] = useState(0);
+  const [tagRows, setTagRows] = useState<{ id: string; record_id: string; tag: string; color: string }[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
-  // Subscribe to global changes
-  useState(() => {
-    const listener = () => forceUpdate((n) => n + 1);
-    listeners.add(listener);
-    return () => { listeners.delete(listener); };
-  });
+  const fetchTags = useCallback(async () => {
+    const { data } = await supabase.from('record_tags').select('*');
+    if (data) setTagRows(data as any[]);
+    setLoaded(true);
+  }, []);
 
-  const tags = globalTags;
-  const recordTags = globalRecordTags;
+  useEffect(() => { fetchTags(); }, [fetchTags]);
+
+  // Derive unique tags from all rows
+  const tags: Tag[] = [];
+  const seen = new Set<string>();
+  for (const row of tagRows) {
+    if (!seen.has(row.tag)) {
+      seen.add(row.tag);
+      tags.push({ id: row.tag, tenantId: 't1', name: row.tag, color: row.color });
+    }
+  }
 
   const createTag = useCallback((name: string, color: string): Tag => {
-    const tag: Tag = { id: `tag-${Date.now()}`, tenantId: 't1', name, color };
-    globalTags = [...globalTags, tag];
-    notify();
-    return tag;
+    return { id: name, tenantId: 't1', name, color };
   }, []);
 
-  const deleteTag = useCallback((tagId: string) => {
-    globalTags = globalTags.filter((t) => t.id !== tagId);
-    globalRecordTags = globalRecordTags.filter((rt) => rt.tagId !== tagId);
-    notify();
+  const deleteTag = useCallback(async (tagId: string) => {
+    await supabase.from('record_tags').delete().eq('tag', tagId);
+    setTagRows(prev => prev.filter(r => r.tag !== tagId));
   }, []);
 
-  const assignTag = useCallback((recordId: string, tagId: string) => {
-    if (globalRecordTags.some((rt) => rt.recordId === recordId && rt.tagId === tagId)) return;
-    globalRecordTags = [...globalRecordTags, { id: `rt-${Date.now()}`, recordId, tagId }];
-    notify();
-  }, []);
+  const assignTag = useCallback(async (recordId: string, tagId: string) => {
+    if (tagRows.some(r => r.record_id === recordId && r.tag === tagId)) return;
+    const tag = tags.find(t => t.id === tagId);
+    const color = tag?.color || 'blue';
+    const { data } = await supabase
+      .from('record_tags')
+      .insert({ record_id: recordId, tag: tagId, color } as any)
+      .select()
+      .maybeSingle();
+    if (data) {
+      setTagRows(prev => [...prev, data as any]);
+    }
+  }, [tagRows, tags]);
 
-  const removeTag = useCallback((recordId: string, tagId: string) => {
-    globalRecordTags = globalRecordTags.filter((rt) => !(rt.recordId === recordId && rt.tagId === tagId));
-    notify();
+  const removeTag = useCallback(async (recordId: string, tagId: string) => {
+    await supabase.from('record_tags').delete().eq('record_id', recordId).eq('tag', tagId);
+    setTagRows(prev => prev.filter(r => !(r.record_id === recordId && r.tag === tagId)));
   }, []);
 
   const getRecordTags = useCallback((recordId: string): Tag[] => {
-    const tagIds = globalRecordTags.filter((rt) => rt.recordId === recordId).map((rt) => rt.tagId);
-    return globalTags.filter((t) => tagIds.includes(t.id));
-  }, []);
+    return tagRows
+      .filter(r => r.record_id === recordId)
+      .map(r => ({ id: r.tag, tenantId: 't1', name: r.tag, color: r.color }));
+  }, [tagRows]);
 
-  return { tags, recordTags, createTag, deleteTag, assignTag, removeTag, getRecordTags };
+  return { tags, recordTags: tagRows, createTag, deleteTag, assignTag, removeTag, getRecordTags };
 }

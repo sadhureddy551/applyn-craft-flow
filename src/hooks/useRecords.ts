@@ -1,8 +1,10 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { ActivityLog } from '@/lib/types';
 import { AdvancedFilter, applyAdvancedFilter, createEmptyFilter } from '@/lib/filter-types';
+import { useAuth } from '@/components/AuthProvider';
 
-export interface MockRecord {
+export interface CrmRecord {
   id: string;
   moduleId: string;
   tenantId: string;
@@ -12,6 +14,9 @@ export interface MockRecord {
   stage?: string;
   values: Record<string, any>;
 }
+
+// Keep backward-compat alias
+export type MockRecord = CrmRecord;
 
 export interface MockNote {
   id: string;
@@ -38,14 +43,48 @@ interface UseRecordsOptions {
   pageSize?: number;
 }
 
+function mapRow(row: any): CrmRecord {
+  const vals = (typeof row.values === 'object' && row.values) ? row.values as Record<string, any> : {};
+  return {
+    id: row.id,
+    moduleId: row.module_id,
+    tenantId: row.tenant_id,
+    createdBy: row.created_by || 'Unknown',
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    stage: vals.stage || vals.status,
+    values: vals,
+  };
+}
+
 export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
-  const [records, setRecords] = useState<MockRecord[]>([]);
+  const [records, setRecords] = useState<CrmRecord[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [sortField, setSortField] = useState<string>('');
   const [sortDir, setSortDir] = useState<SortDirection>('asc');
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [advancedFilter, setAdvancedFilter] = useState<AdvancedFilter>(createEmptyFilter());
   const [page, setPage] = useState(1);
+  const { profile } = useAuth();
+
+  // Fetch records from DB
+  const fetchRecords = useCallback(async () => {
+    if (!moduleId) return;
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('crm_records')
+      .select('*')
+      .eq('module_id', moduleId)
+      .is('deleted_at', null)
+      .order('updated_at', { ascending: false });
+    if (!error && data) {
+      setRecords(data.map(mapRow));
+    }
+    setLoading(false);
+  }, [moduleId]);
+
+  useEffect(() => { fetchRecords(); }, [fetchRecords]);
 
   const filtered = useMemo(() => {
     let result = [...records];
@@ -58,9 +97,7 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
     }
 
     Object.entries(filters).forEach(([key, value]) => {
-      if (value) {
-        result = result.filter((r) => String(r.values[key]) === value);
-      }
+      if (value) result = result.filter((r) => String(r.values[key]) === value);
     });
 
     if (advancedFilter.conditions.length > 0) {
@@ -93,21 +130,33 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
     }
   }, [sortField]);
 
-  const createRecord = useCallback((values: Record<string, any>) => {
-    const newRecord: MockRecord = {
+  const createRecord = useCallback(async (values: Record<string, any>): Promise<CrmRecord> => {
+    const userName = profile?.name || 'User';
+    const { data, error } = await supabase
+      .from('crm_records')
+      .insert({
+        module_id: moduleId,
+        created_by: userName,
+        values: values as any,
+      })
+      .select()
+      .single();
+
+    const rec = data ? mapRow(data) : {
       id: `r-${Date.now()}`,
       moduleId,
       tenantId: 't1',
-      createdBy: 'Current User',
+      createdBy: userName,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       values,
     };
-    setRecords((prev) => [newRecord, ...prev]);
-    return newRecord;
-  }, [moduleId]);
+    setRecords((prev) => [rec, ...prev]);
+    return rec;
+  }, [moduleId, profile]);
 
-  const updateRecord = useCallback((recordId: string, values: Record<string, any>) => {
+  const updateRecord = useCallback(async (recordId: string, values: Record<string, any>) => {
+    // Optimistic update
     setRecords((prev) =>
       prev.map((r) =>
         r.id === recordId
@@ -115,10 +164,22 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
           : r
       )
     );
-  }, []);
+    // Get current values and merge
+    const current = records.find(r => r.id === recordId);
+    const merged = { ...(current?.values || {}), ...values };
+    await supabase
+      .from('crm_records')
+      .update({ values: merged as any, updated_at: new Date().toISOString() })
+      .eq('id', recordId);
+  }, [records]);
 
-  const deleteRecord = useCallback((recordId: string) => {
+  const deleteRecord = useCallback(async (recordId: string) => {
     setRecords((prev) => prev.filter((r) => r.id !== recordId));
+    // Soft delete
+    await supabase
+      .from('crm_records')
+      .update({ deleted_at: new Date().toISOString() } as any)
+      .eq('id', recordId);
   }, []);
 
   const getRecord = useCallback((recordId: string) => {
@@ -129,6 +190,7 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
     records: paginated,
     allRecords: records,
     totalCount: filtered.length,
+    loading,
     page,
     totalPages,
     setPage,
@@ -145,6 +207,7 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
     updateRecord,
     deleteRecord,
     getRecord,
+    refetch: fetchRecords,
   };
 }
 
