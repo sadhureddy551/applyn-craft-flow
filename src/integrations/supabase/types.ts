@@ -74,6 +74,192 @@ export type Database = {
         }
         Relationships: []
       }
+      email_accounts: {
+        Row: {
+          access_token: string | null
+          created_at: string
+          email_address: string
+          id: string
+          is_active: boolean
+          last_sync_at: string | null
+          provider: string
+          refresh_token: string | null
+          tenant_id: string
+          token_expiry: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string
+          email_address: string
+          id?: string
+          is_active?: boolean
+          last_sync_at?: string | null
+          provider: string
+          refresh_token?: string | null
+          tenant_id?: string
+          token_expiry?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string
+          email_address?: string
+          id?: string
+          is_active?: boolean
+          last_sync_at?: string | null
+          provider?: string
+          refresh_token?: string | null
+          tenant_id?: string
+          token_expiry?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      email_attachments: {
+        Row: {
+          content_type: string | null
+          created_at: string
+          email_id: string
+          file_name: string
+          file_url: string | null
+          id: string
+          size: number
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string
+          email_id: string
+          file_name: string
+          file_url?: string | null
+          id?: string
+          size?: number
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string
+          email_id?: string
+          file_name?: string
+          file_url?: string | null
+          id?: string
+          size?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_attachments_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_record_links: {
+        Row: {
+          created_at: string
+          email_id: string
+          id: string
+          module_name: string
+          record_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_id: string
+          id?: string
+          module_name: string
+          record_id: string
+        }
+        Update: {
+          created_at?: string
+          email_id?: string
+          id?: string
+          module_name?: string
+          record_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_record_links_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      emails: {
+        Row: {
+          account_id: string
+          bcc_emails: Json
+          body_html: string | null
+          body_text: string | null
+          cc_emails: Json
+          direction: string
+          from_email: string
+          id: string
+          is_opened: boolean
+          is_read: boolean
+          is_starred: boolean
+          opened_at: string | null
+          provider_message_id: string | null
+          sent_at: string
+          subject: string
+          synced_at: string
+          tenant_id: string
+          thread_id: string | null
+          to_emails: Json
+        }
+        Insert: {
+          account_id: string
+          bcc_emails?: Json
+          body_html?: string | null
+          body_text?: string | null
+          cc_emails?: Json
+          direction?: string
+          from_email: string
+          id?: string
+          is_opened?: boolean
+          is_read?: boolean
+          is_starred?: boolean
+          opened_at?: string | null
+          provider_message_id?: string | null
+          sent_at?: string
+          subject?: string
+          synced_at?: string
+          tenant_id?: string
+          thread_id?: string | null
+          to_emails?: Json
+        }
+        Update: {
+          account_id?: string
+          bcc_emails?: Json
+          body_html?: string | null
+          body_text?: string | null
+          cc_emails?: Json
+          direction?: string
+          from_email?: string
+          id?: string
+          is_opened?: boolean
+          is_read?: boolean
+          is_starred?: boolean
+          opened_at?: string | null
+          provider_message_id?: string | null
+          sent_at?: string
+          subject?: string
+          synced_at?: string
+          tenant_id?: string
+          thread_id?: string | null
+          to_emails?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emails_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "email_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       permissions: {
         Row: {
           action: string
