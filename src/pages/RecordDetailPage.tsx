@@ -56,6 +56,7 @@ export default function RecordDetailPage() {
   const { activities, addActivity } = useRecordActivities(recordId || '');
   const { notes, addNote, deleteNote } = useNotes(recordId || '');
   const { files, uploading, uploadFile, deleteFile } = useFiles(recordId || '');
+  const { emails: recordEmails, loading: emailsLoading, refetch: refetchEmails, unlinkEmail } = useRecordEmails(recordId || '');
 
   const [values, setValues] = useState<Record<string, any>>({});
   useEffect(() => {
