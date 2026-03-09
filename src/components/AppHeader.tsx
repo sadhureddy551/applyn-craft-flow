@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useNotifications } from '@/hooks/useNotifications';
 import { NotificationType } from '@/lib/notification-types';
-import { useGlobalSearch, groupResultsByModule } from '@/hooks/useGlobalSearch';
+import { GlobalSearchModal } from '@/components/GlobalSearchModal';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -30,104 +30,36 @@ const TYPE_COLORS: Record<NotificationType, string> = {
 export function AppHeader() {
   const { notifications, unreadCount, markAsRead, markAllAsRead, dismiss } = useNotifications();
   const navigate = useNavigate();
-  const [query, setQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const results = useGlobalSearch(query);
-  const grouped = groupResultsByModule(results);
-
-  // Close on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setSearchOpen(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
 
   // Keyboard shortcut
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        inputRef.current?.focus();
         setSearchOpen(true);
       }
-      if (e.key === 'Escape') setSearchOpen(false);
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
   }, []);
 
-  const handleSelect = (link: string) => {
-    navigate(link);
-    setQuery('');
-    setSearchOpen(false);
-  };
-
   return (
     <header className="h-14 border-b border-border bg-card flex items-center px-4 gap-4 shrink-0">
       <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
 
-      {/* Search */}
-      <div className="flex-1 max-w-lg relative" ref={searchRef}>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            ref={inputRef}
-            placeholder="Search records, modules... ⌘K"
-            className="pl-9 pr-9 h-9 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-ring"
-            value={query}
-            onChange={(e) => { setQuery(e.target.value); setSearchOpen(true); }}
-            onFocus={() => query.length >= 2 && setSearchOpen(true)}
-          />
-          {query && (
-            <button onClick={() => { setQuery(''); setSearchOpen(false); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-              <X className="h-3.5 w-3.5" />
-            </button>
-          )}
-        </div>
-
-        {searchOpen && query.length >= 2 && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-xl shadow-lg z-50 overflow-hidden">
-            <ScrollArea className="max-h-[400px]">
-              {results.length === 0 ? (
-                <div className="py-10 text-center">
-                  <Search className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
-                  <p className="text-sm text-muted-foreground">No results for "{query}"</p>
-                </div>
-              ) : (
-                <div className="py-1">
-                  {grouped.map((group) => (
-                    <div key={group.moduleName}>
-                      <div className="px-3 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider bg-muted/30">{group.moduleName}</div>
-                      {group.results.map((r) => (
-                        <button
-                          key={r.id}
-                          onClick={() => handleSelect(r.link)}
-                          className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-muted/50 transition-colors"
-                        >
-                          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                            <span className="text-xs font-bold text-primary">{r.title.charAt(0)}</span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-popover-foreground truncate">{r.title}</p>
-                            {r.subtitle && <p className="text-xs text-muted-foreground truncate">{r.subtitle}</p>}
-                          </div>
-                          <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        </button>
-                      ))}
-                    </div>
-                  ))}
-                  <div className="px-3 py-2 border-t border-border/50 text-[11px] text-muted-foreground">{results.length} result{results.length !== 1 ? 's' : ''} found</div>
-                </div>
-              )}
-            </ScrollArea>
-          </div>
-        )}
+      {/* Search trigger */}
+      <div className="flex-1 max-w-lg">
+        <button
+          onClick={() => setSearchOpen(true)}
+          className="w-full flex items-center gap-2 px-3 h-9 rounded-md bg-muted/50 text-sm text-muted-foreground hover:bg-muted transition-colors"
+        >
+          <Search className="h-4 w-4" />
+          <span>Search records, modules... ⌘K</span>
+        </button>
       </div>
+
+      <GlobalSearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
 
       {/* Notifications */}
       <div className="flex items-center gap-2 ml-auto">
