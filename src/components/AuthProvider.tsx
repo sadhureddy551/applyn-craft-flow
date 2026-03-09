@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 interface AuthContextType {
   session: Session | null;
   user: User | null;
-  profile: { id: string; tenant_id: string; name: string; email: string; avatar_url: string | null } | null;
+  profile: { id: string; tenant_id: string; name: string; email: string; avatar_url: string | null; status: string; phone: string; timezone: string } | null;
   loading: boolean;
   signOut: () => Promise<void>;
 }
