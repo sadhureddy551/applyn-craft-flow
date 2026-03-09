@@ -49,6 +49,7 @@ const App = () => (
 
               {/* Protected routes inside layout */}
               <Route path="/" element={<AppLayout><Dashboard /></AppLayout>} />
+              <Route path="/profile" element={<AppLayout><ProfilePage /></AppLayout>} />
               <Route path="/modules" element={<AppLayout><ModulesPage /></AppLayout>} />
               <Route path="/modules/:moduleId" element={<AppLayout><ModuleDetailPage /></AppLayout>} />
               <Route path="/modules/:moduleId/records/:recordId" element={<AppLayout><RecordDetailPage /></AppLayout>} />
