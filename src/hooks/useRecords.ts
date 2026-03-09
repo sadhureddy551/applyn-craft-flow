@@ -160,6 +160,8 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
   }, [moduleId, profile, triggerAutomation]);
 
   const updateRecord = useCallback(async (recordId: string, values: Record<string, any>) => {
+    const current = records.find(r => r.id === recordId);
+    const oldValues = current?.values || {};
     // Optimistic update
     setRecords((prev) =>
       prev.map((r) =>
@@ -168,13 +170,19 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
           : r
       )
     );
-    // Get current values and merge
-    const current = records.find(r => r.id === recordId);
-    const merged = { ...(current?.values || {}), ...values };
+    const merged = { ...oldValues, ...values };
     await supabase
       .from('crm_records')
       .update({ values: merged as any, updated_at: new Date().toISOString() })
       .eq('id', recordId);
+
+    // Detect stage change
+    const stageKey = values.stage !== undefined ? 'stage' : values.status !== undefined ? 'status' : null;
+    if (stageKey && oldValues[stageKey] !== values[stageKey]) {
+      triggerAutomation(moduleId, 'stage_changed', { id: recordId, values: merged });
+    } else {
+      triggerAutomation(moduleId, 'record_updated', { id: recordId, values: merged });
+    }
   }, [records]);
 
   const deleteRecord = useCallback(async (recordId: string) => {
