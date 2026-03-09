@@ -618,6 +618,24 @@ export type Database = {
         Args: { _action: string; _module_name: string; _user_id: string }
         Returns: boolean
       }
+      search_records: {
+        Args: {
+          _filters?: Json
+          _limit_val?: number
+          _module_id?: string
+          _offset_val?: number
+          _tenant_id: string
+          _text_query?: string
+        }
+        Returns: {
+          out_created_at: string
+          out_id: string
+          out_module_id: string
+          out_tenant_id: string
+          out_updated_at: string
+          out_values: Json
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
