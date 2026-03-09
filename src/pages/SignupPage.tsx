@@ -33,7 +33,6 @@ export default function SignupPage() {
       password,
       options: {
         data: { name },
-        emailRedirectTo: window.location.origin,
       },
     });
     setLoading(false);
