@@ -10,13 +10,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAutomations } from '@/hooks/useAutomations';
-import { mockModules } from '@/lib/mock-data';
+import { useModules } from '@/hooks/useModulesCRUD';
 import { AutomationTriggerType, TRIGGER_LABELS } from '@/lib/automation-types';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
 export default function AutomationsPage() {
   const { automations, loading, createAutomation, deleteAutomation, toggleActive } = useAutomations();
+  const { modules } = useModules();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
@@ -60,7 +61,7 @@ export default function AutomationsPage() {
                 <Label>Module</Label>
                 <Select value={moduleId} onValueChange={setModuleId}>
                   <SelectTrigger><SelectValue placeholder="Select module" /></SelectTrigger>
-                  <SelectContent>{mockModules.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent>
+                  <SelectContent>{modules.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div>
@@ -97,7 +98,7 @@ export default function AutomationsPage() {
       ) : (
         <div className="space-y-3">
           {automations.map((auto, i) => {
-            const mod = mockModules.find(m => m.id === auto.module_id);
+            const mod = modules.find(m => m.id === auto.module_id);
             return (
               <motion.div key={auto.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
                 <Card className="shadow-card hover:shadow-card-hover transition-shadow cursor-pointer group" onClick={() => navigate(`/automations/${auto.id}`)}>

@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ActivityLog } from '@/lib/types';
 import { AdvancedFilter, applyAdvancedFilter, createEmptyFilter } from '@/lib/filter-types';
 import { useAuth } from '@/components/AuthProvider';
+import { useAutomationTrigger } from '@/hooks/useAutomationTrigger';
 
 export interface CrmRecord {
   id: string;
@@ -67,6 +68,7 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
   const [advancedFilter, setAdvancedFilter] = useState<AdvancedFilter>(createEmptyFilter());
   const [page, setPage] = useState(1);
   const { profile } = useAuth();
+  const { triggerAutomation } = useAutomationTrigger();
 
   // Fetch records from DB
   const fetchRecords = useCallback(async () => {
@@ -152,10 +154,14 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
       values,
     };
     setRecords((prev) => [rec, ...prev]);
+    // Fire automation trigger asynchronously
+    triggerAutomation(moduleId, 'record_created', { id: rec.id, values });
     return rec;
-  }, [moduleId, profile]);
+  }, [moduleId, profile, triggerAutomation]);
 
   const updateRecord = useCallback(async (recordId: string, values: Record<string, any>) => {
+    const current = records.find(r => r.id === recordId);
+    const oldValues = current?.values || {};
     // Optimistic update
     setRecords((prev) =>
       prev.map((r) =>
@@ -164,14 +170,20 @@ export function useRecords({ moduleId, pageSize = 10 }: UseRecordsOptions) {
           : r
       )
     );
-    // Get current values and merge
-    const current = records.find(r => r.id === recordId);
-    const merged = { ...(current?.values || {}), ...values };
+    const merged = { ...oldValues, ...values };
     await supabase
       .from('crm_records')
       .update({ values: merged as any, updated_at: new Date().toISOString() })
       .eq('id', recordId);
-  }, [records]);
+
+    // Detect stage change
+    const stageKey = values.stage !== undefined ? 'stage' : values.status !== undefined ? 'status' : null;
+    if (stageKey && oldValues[stageKey] !== values[stageKey]) {
+      triggerAutomation(moduleId, 'stage_changed', { id: recordId, values: merged });
+    } else {
+      triggerAutomation(moduleId, 'record_updated', { id: recordId, values: merged });
+    }
+  }, [records, moduleId, triggerAutomation]);
 
   const deleteRecord = useCallback(async (recordId: string) => {
     setRecords((prev) => prev.filter((r) => r.id !== recordId));

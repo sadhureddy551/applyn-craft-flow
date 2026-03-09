@@ -117,6 +117,51 @@ export type Database = {
           },
         ]
       }
+      automation_logs: {
+        Row: {
+          automation_id: string
+          created_at: string
+          details: Json
+          id: string
+          record_id: string | null
+          status: string
+          tenant_id: string
+        }
+        Insert: {
+          automation_id: string
+          created_at?: string
+          details?: Json
+          id?: string
+          record_id?: string | null
+          status?: string
+          tenant_id?: string
+        }
+        Update: {
+          automation_id?: string
+          created_at?: string
+          details?: Json
+          id?: string
+          record_id?: string | null
+          status?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_logs_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "automations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_logs_record_id_fkey"
+            columns: ["record_id"]
+            isOneToOne: false
+            referencedRelation: "crm_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       automations: {
         Row: {
           created_at: string
