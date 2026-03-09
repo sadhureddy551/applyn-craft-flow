@@ -912,8 +912,11 @@ export type Database = {
           email: string
           id: string
           name: string
+          notifications_enabled: boolean | null
+          phone: string | null
           status: string
           tenant_id: string
+          timezone: string | null
           updated_at: string
           user_id: string | null
         }
@@ -923,8 +926,11 @@ export type Database = {
           email: string
           id?: string
           name?: string
+          notifications_enabled?: boolean | null
+          phone?: string | null
           status?: string
           tenant_id?: string
+          timezone?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -934,8 +940,11 @@ export type Database = {
           email?: string
           id?: string
           name?: string
+          notifications_enabled?: boolean | null
+          phone?: string | null
           status?: string
           tenant_id?: string
+          timezone?: string | null
           updated_at?: string
           user_id?: string | null
         }
