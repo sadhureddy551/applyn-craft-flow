@@ -154,6 +154,7 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string
+          deleted_at: string | null
           id: string
           module_id: string
           tenant_id: string
@@ -163,6 +164,7 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string
+          deleted_at?: string | null
           id?: string
           module_id: string
           tenant_id?: string
@@ -172,6 +174,7 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string
+          deleted_at?: string | null
           id?: string
           module_id?: string
           tenant_id?: string
@@ -672,6 +675,41 @@ export type Database = {
         }
         Relationships: []
       }
+      record_tags: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          record_id: string
+          tag: string
+          tenant_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          record_id: string
+          tag: string
+          tenant_id?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          record_id?: string
+          tag?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "record_tags_record_id_fkey"
+            columns: ["record_id"]
+            isOneToOne: false
+            referencedRelation: "crm_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_permissions: {
         Row: {
           action: string
@@ -847,6 +885,7 @@ export type Database = {
         Args: { _action: string; _module_name: string; _user_id: string }
         Returns: boolean
       }
+      get_user_tenant_id: { Args: { _user_id: string }; Returns: string }
       search_records: {
         Args: {
           _filters?: Json
