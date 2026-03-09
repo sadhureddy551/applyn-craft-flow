@@ -19,7 +19,7 @@ serve(async (req) => {
 
     // If code is provided, exchange it for tokens
     if (code) {
-      return await handleCallback(provider, code, redirect_uri, state);
+      return await handleCallback(provider, code, redirect_uri, state, req);
     }
 
     // Otherwise, generate OAuth URL
@@ -88,16 +88,37 @@ serve(async (req) => {
       status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
+    console.error('Connect email error:', err);
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });
 
-async function handleCallback(provider: string, code: string, redirectUri: string, _state: string) {
+async function handleCallback(provider: string, code: string, redirectUri: string, _state: string, req: Request) {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+  // Try to get authenticated user from request
+  let userId = 'system';
+  let tenantId = 't1';
+  
+  const authHeader = req.headers.get('Authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user } } = await supabase.auth.getUser(token);
+    if (user) {
+      userId = user.id;
+      // Get tenant from profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('tenant_id')
+        .eq('user_id', user.id)
+        .single();
+      if (profile?.tenant_id) tenantId = profile.tenant_id;
+    }
+  }
 
   let accessToken: string;
   let refreshToken: string;
@@ -170,14 +191,14 @@ async function handleCallback(provider: string, code: string, redirectUri: strin
   const { data: account, error } = await supabase
     .from('email_accounts')
     .upsert({
-      user_id: 'system',
+      user_id: userId,
       provider,
       email_address: email,
       access_token: accessToken,
       refresh_token: refreshToken,
       token_expiry: tokenExpiry,
       is_active: true,
-      tenant_id: 't1',
+      tenant_id: tenantId,
     }, { onConflict: 'tenant_id,email_address' })
     .select()
     .single();
