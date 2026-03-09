@@ -33,7 +33,6 @@ export default function SignupPage() {
       password,
       options: {
         data: { name },
-        emailRedirectTo: window.location.origin,
       },
     });
     setLoading(false);
@@ -44,24 +43,6 @@ export default function SignupPage() {
     }
   };
 
-  if (success) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md text-center">
-          <CardHeader>
-            <div className="mx-auto mb-4 h-12 w-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-              <CheckCircle className="h-6 w-6 text-emerald-600" />
-            </div>
-            <CardTitle className="text-2xl">Check your email</CardTitle>
-            <CardDescription>We sent a confirmation link to <strong>{email}</strong>. Click it to activate your account.</CardDescription>
-          </CardHeader>
-          <CardFooter className="justify-center">
-            <Link to="/login" className="text-primary hover:underline text-sm font-medium">Back to login</Link>
-          </CardFooter>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
