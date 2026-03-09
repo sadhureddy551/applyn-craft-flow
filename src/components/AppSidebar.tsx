@@ -7,16 +7,13 @@ import {
   Zap,
   FileText,
   BarChart3,
-  ChevronDown,
   Link2,
-  LogOut,
-  User,
   Mail,
   MessageCircle,
   Plug,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -29,7 +26,8 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { UserMenu } from "@/components/UserMenu";
+import { UserAvatar } from "@/components/UserAvatar";
 import { useAuth } from "@/components/AuthProvider";
 
 const mainNav = [
