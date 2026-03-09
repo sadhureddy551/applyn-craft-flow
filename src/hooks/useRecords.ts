@@ -230,46 +230,4 @@ export function useRecordActivities(recordId: string) {
   return { activities, addActivity };
 }
 
-export function useRecordNotes(recordId: string) {
-  const [notes, setNotes] = useState<MockNote[]>([]);
-
-  const addNote = useCallback((content: string) => {
-    const newNote: MockNote = {
-      id: `n-${Date.now()}`,
-      recordId,
-      content,
-      createdBy: 'Current User',
-      createdAt: new Date().toISOString(),
-    };
-    setNotes((prev) => [newNote, ...prev]);
-  }, [recordId]);
-
-  const deleteNote = useCallback((noteId: string) => {
-    setNotes((prev) => prev.filter((n) => n.id !== noteId));
-  }, []);
-
-  return { notes, addNote, deleteNote };
-}
-
-export function useRecordFiles(recordId: string) {
-  const [files, setFiles] = useState<MockFile[]>([]);
-
-  const addFile = useCallback((fileName: string, fileSize: number) => {
-    const newFile: MockFile = {
-      id: `file-${Date.now()}`,
-      recordId,
-      fileName,
-      fileUrl: '#',
-      fileSize,
-      uploadedBy: 'Current User',
-      createdAt: new Date().toISOString(),
-    };
-    setFiles((prev) => [newFile, ...prev]);
-  }, [recordId]);
-
-  const deleteFile = useCallback((fileId: string) => {
-    setFiles((prev) => prev.filter((f) => f.id !== fileId));
-  }, []);
-
-  return { files, addFile, deleteFile };
-}
+// Notes and Files hooks have been moved to useNotes.ts and useFiles.ts

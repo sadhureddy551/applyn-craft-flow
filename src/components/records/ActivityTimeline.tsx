@@ -3,13 +3,13 @@ import { GitBranch, Plus, Edit3, ArrowUpRight, ArrowDownLeft, MessageCircle, Sti
 import { ActivityLog } from "@/lib/types";
 import { Email } from "@/lib/email-types";
 import { WhatsAppMessage } from "@/lib/whatsapp-types";
-import { MockNote } from "@/lib/mock-data";
+import { Note } from "@/hooks/useNotes";
 
 type TimelineItem =
   | { kind: 'activity'; data: ActivityLog; date: Date }
   | { kind: 'email'; data: Email; date: Date }
   | { kind: 'whatsapp'; data: WhatsAppMessage; date: Date }
-  | { kind: 'note'; data: MockNote; date: Date };
+  | { kind: 'note'; data: Note; date: Date };
 
 const typeConfig: Record<string, { icon: typeof Plus; color: string }> = {
   record_created: { icon: Plus, color: 'text-accent' },
@@ -21,7 +21,7 @@ interface ActivityTimelineProps {
   activities: ActivityLog[];
   emails?: Email[];
   whatsAppMessages?: WhatsAppMessage[];
-  notes?: MockNote[];
+  notes?: Note[];
 }
 
 export function ActivityTimeline({ activities, emails = [], whatsAppMessages = [], notes = [] }: ActivityTimelineProps) {

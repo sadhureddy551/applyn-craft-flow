@@ -8,18 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { format } from "date-fns";
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  status: 'todo' | 'in_progress' | 'done';
-  priority: 'low' | 'medium' | 'high';
-  dueDate: string;
-  createdAt: string;
-}
+import { useTasks } from "@/hooks/useTasks";
 
 const PRIORITY_COLORS: Record<string, string> = {
   low: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
@@ -33,15 +24,8 @@ const STATUS_ICONS: Record<string, any> = {
   done: CheckCircle2,
 };
 
-const initialTasks: Task[] = [
-  { id: '1', title: 'Follow up with Acme Corp', description: 'Send proposal for Q2 engagement', status: 'todo', priority: 'high', dueDate: '2026-03-10', createdAt: '2026-03-07' },
-  { id: '2', title: 'Update CRM records for March', description: 'Clean up stale leads and update contact info', status: 'in_progress', priority: 'medium', dueDate: '2026-03-15', createdAt: '2026-03-06' },
-  { id: '3', title: 'Prepare quarterly report', description: 'Compile sales metrics for Q1 review', status: 'done', priority: 'low', dueDate: '2026-03-01', createdAt: '2026-03-01' },
-  { id: '4', title: 'Schedule demo with TechStart', description: 'Product demo for enterprise plan', status: 'todo', priority: 'high', dueDate: '2026-03-12', createdAt: '2026-03-07' },
-];
-
 export default function TasksPage() {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const { tasks, loading, createTask, updateTask, deleteTask } = useTasks();
   const [filter, setFilter] = useState<'all' | 'todo' | 'in_progress' | 'done'>('all');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -52,40 +36,37 @@ export default function TasksPage() {
 
   const filtered = filter === 'all' ? tasks : tasks.filter(t => t.status === filter);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title.trim()) return;
     if (editingId) {
-      setTasks(tasks.map(t => t.id === editingId ? { ...t, title, description, priority, dueDate } : t));
+      await updateTask(editingId, { title, description, priority, dueDate });
       toast.success("Task updated");
     } else {
-      setTasks([...tasks, {
-        id: `task-${Date.now()}`, title, description, status: 'todo', priority, dueDate, createdAt: new Date().toISOString().split('T')[0],
-      }]);
+      await createTask({ title, description, priority, dueDate });
       toast.success("Task created");
     }
     resetDialog();
   };
 
-  const handleEdit = (task: Task) => {
+  const handleEdit = (task: typeof tasks[0]) => {
     setTitle(task.title);
     setDescription(task.description);
     setPriority(task.priority);
-    setDueDate(task.dueDate);
+    setDueDate(task.dueDate || '');
     setEditingId(task.id);
     setDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    setTasks(tasks.filter(t => t.id !== id));
+  const handleDelete = async (id: string) => {
+    await deleteTask(id);
     toast.success("Task deleted");
   };
 
   const toggleStatus = (id: string) => {
-    setTasks(tasks.map(t => {
-      if (t.id !== id) return t;
-      const next = t.status === 'todo' ? 'in_progress' : t.status === 'in_progress' ? 'done' : 'todo';
-      return { ...t, status: next };
-    }));
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    const next = task.status === 'todo' ? 'in_progress' : task.status === 'in_progress' ? 'done' : 'todo';
+    updateTask(id, { status: next });
   };
 
   const resetDialog = () => {
@@ -103,6 +84,10 @@ export default function TasksPage() {
     in_progress: tasks.filter(t => t.status === 'in_progress').length,
     done: tasks.filter(t => t.status === 'done').length,
   };
+
+  if (loading) {
+    return <div className="p-6 max-w-5xl mx-auto space-y-6"><Skeleton className="h-8 w-48" /><Skeleton className="h-64 w-full" /></div>;
+  }
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
