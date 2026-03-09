@@ -120,7 +120,7 @@ function WidgetRenderer({ widget }: { widget: DashboardWidget }) {
 }
 
 export default function Dashboard() {
-  const { dashboards, addWidget, removeWidget, reorderWidgets, resizeWidget } = useDashboards();
+  const { dashboards, loading, addWidget, removeWidget, reorderWidgets, resizeWidget } = useDashboards();
   const dashboard = dashboards[0];
   const navigate = useNavigate();
   const { toast } = useToast();
