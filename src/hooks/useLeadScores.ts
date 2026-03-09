@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { MockRecord, mockActivities } from '@/lib/mock-data';
+import { MockRecord } from '@/hooks/useRecords';
 import { LeadScore, getScoreCategory } from '@/lib/lead-score-types';
 
 // Deterministic scoring based on record factors

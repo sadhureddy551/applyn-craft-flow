@@ -1,5 +1,5 @@
 import { useMemo, useCallback } from 'react';
-import { MockRecord } from '@/lib/mock-data';
+import { MockRecord } from '@/hooks/useRecords';
 import { Field } from '@/lib/types';
 import { DuplicateMatch } from '@/components/records/DuplicateWarningDialog';
 
