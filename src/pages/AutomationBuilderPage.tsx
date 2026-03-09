@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft, Zap, Plus, Trash2, Filter, Play, Mail, User, FileText, Edit3, Globe,
-  ChevronDown, ArrowDown, Circle,
+  ArrowLeft, Zap, Plus, Trash2, Filter, Mail, User, FileText, Edit3, MessageSquare,
+  ArrowDown, Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,17 +25,17 @@ import { useToast } from '@/hooks/use-toast';
 const ACTION_ICONS: Record<AutomationActionType, typeof Mail> = {
   assign_owner: User,
   send_email: Mail,
+  send_whatsapp: MessageSquare,
   create_task: FileText,
   update_field: Edit3,
-  send_webhook: Globe,
 };
 
 const ACTION_COLORS: Record<AutomationActionType, string> = {
   assign_owner: 'bg-blue-500/10 text-blue-600',
   send_email: 'bg-violet-500/10 text-violet-600',
-  create_task: 'bg-emerald-500/10 text-emerald-600',
-  update_field: 'bg-amber-500/10 text-amber-600',
-  send_webhook: 'bg-rose-500/10 text-rose-600',
+  send_whatsapp: 'bg-emerald-500/10 text-emerald-600',
+  create_task: 'bg-amber-500/10 text-amber-600',
+  update_field: 'bg-rose-500/10 text-rose-600',
 };
 
 function FlowConnector() {
@@ -73,22 +73,25 @@ export default function AutomationBuilderPage() {
   if (!automation) {
     return (
       <div className="p-6 flex flex-col items-center justify-center min-h-[50vh]">
-        <p className="text-muted-foreground">Automation not found</p>
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-4" />
+        <p className="text-muted-foreground">Loading automation...</p>
         <Button variant="outline" className="mt-4" onClick={() => navigate('/automations')}>Back to Automations</Button>
       </div>
     );
   }
 
-  const mod = mockModules.find(m => m.id === automation.moduleId);
-  const fields = mockFields[automation.moduleId] || [];
+  const mod = mockModules.find(m => m.id === automation.module_id);
+  const fields = mockFields[automation.module_id] || [];
+  const conditions = automation.conditions || [];
+  const actions = automation.actions || [];
 
-  const handleAddCondition = () => {
+  const handleAddCondition = async () => {
     if (!condField) return;
-    addCondition(automation.id, {
-      id: `c-${Date.now()}`,
-      fieldKey: condField,
+    await addCondition(automation.id, {
+      field_name: condField,
       operator: condOp,
       value: condValue,
+      sort_order: conditions.length,
     });
     setCondOpen(false);
     setCondField('');
@@ -96,11 +99,11 @@ export default function AutomationBuilderPage() {
     toast({ title: 'Condition added' });
   };
 
-  const handleAddAction = () => {
-    addAction(automation.id, {
-      id: `a-${Date.now()}`,
-      type: actType,
-      config: { ...actConfig },
+  const handleAddAction = async () => {
+    await addAction(automation.id, {
+      action_type: actType,
+      action_config: { ...actConfig },
+      sort_order: actions.length,
     });
     setActOpen(false);
     setActConfig({});
@@ -121,6 +124,13 @@ export default function AutomationBuilderPage() {
             <div><Label>Body</Label><Textarea value={actConfig.body || ''} onChange={e => setActConfig({ ...actConfig, body: e.target.value })} placeholder="Email body..." rows={3} /></div>
           </>
         );
+      case 'send_whatsapp':
+        return (
+          <>
+            <div><Label>To</Label><Input value={actConfig.to || ''} onChange={e => setActConfig({ ...actConfig, to: e.target.value })} placeholder="{{record.phone}}" /></div>
+            <div><Label>Message</Label><Textarea value={actConfig.message || ''} onChange={e => setActConfig({ ...actConfig, message: e.target.value })} placeholder="WhatsApp message..." rows={3} /></div>
+          </>
+        );
       case 'create_task':
         return (
           <>
@@ -133,25 +143,16 @@ export default function AutomationBuilderPage() {
           <>
             <div>
               <Label>Field</Label>
-              <Select value={actConfig.fieldKey || ''} onValueChange={v => setActConfig({ ...actConfig, fieldKey: v })}>
+              <Select value={actConfig.field_key || ''} onValueChange={v => setActConfig({ ...actConfig, field_key: v })}>
                 <SelectTrigger><SelectValue placeholder="Select field" /></SelectTrigger>
                 <SelectContent>{fields.map(f => <SelectItem key={f.fieldKey} value={f.fieldKey}>{f.label}</SelectItem>)}</SelectContent>
               </Select>
             </div>
-            <div><Label>New Value</Label><Input value={actConfig.newValue || ''} onChange={e => setActConfig({ ...actConfig, newValue: e.target.value })} placeholder="Value" /></div>
-          </>
-        );
-      case 'send_webhook':
-        return (
-          <>
-            <div><Label>Webhook URL</Label><Input value={actConfig.url || ''} onChange={e => setActConfig({ ...actConfig, url: e.target.value })} placeholder="https://..." /></div>
-            <div><Label>Payload (JSON)</Label><Textarea value={actConfig.payload || ''} onChange={e => setActConfig({ ...actConfig, payload: e.target.value })} placeholder='{"key": "value"}' rows={3} /></div>
+            <div><Label>New Value</Label><Input value={actConfig.new_value || ''} onChange={e => setActConfig({ ...actConfig, new_value: e.target.value })} placeholder="Value" /></div>
           </>
         );
     }
   };
-
-  const needsValue = !['is_empty', 'is_not_empty'].includes(condOp);
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-6">
@@ -160,12 +161,12 @@ export default function AutomationBuilderPage() {
         <Button variant="ghost" size="icon" onClick={() => navigate('/automations')}><ArrowLeft className="h-4 w-4" /></Button>
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-foreground">{automation.name}</h1>
-          <p className="text-sm text-muted-foreground">{mod?.name} · {TRIGGER_LABELS[automation.triggerType]}</p>
+          <p className="text-sm text-muted-foreground">{mod?.name} · {TRIGGER_LABELS[automation.trigger_event]}</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">{automation.isActive ? 'Active' : 'Inactive'}</span>
-            <Switch checked={automation.isActive} onCheckedChange={() => toggleActive(automation.id)} />
+            <span className="text-sm text-muted-foreground">{automation.is_active ? 'Active' : 'Inactive'}</span>
+            <Switch checked={automation.is_active} onCheckedChange={() => toggleActive(automation.id)} />
           </div>
         </div>
       </div>
@@ -181,9 +182,9 @@ export default function AutomationBuilderPage() {
               </div>
               <div className="flex-1">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Trigger</p>
-                <p className="text-sm font-semibold text-foreground">{TRIGGER_LABELS[automation.triggerType]}</p>
+                <p className="text-sm font-semibold text-foreground">{TRIGGER_LABELS[automation.trigger_event]}</p>
               </div>
-              <Select value={automation.triggerType} onValueChange={(v) => updateAutomation(automation.id, { triggerType: v as AutomationTriggerType })}>
+              <Select value={automation.trigger_event} onValueChange={(v) => updateAutomation(automation.id, { trigger_event: v as AutomationTriggerType })}>
                 <SelectTrigger className="w-[160px] h-8 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {Object.entries(TRIGGER_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
@@ -203,7 +204,7 @@ export default function AutomationBuilderPage() {
                 <div className="flex items-center gap-2">
                   <Filter className="h-4 w-4 text-amber-600" />
                   <CardTitle className="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">Conditions</CardTitle>
-                  {automation.conditionsJSON.length === 0 && <span className="text-xs text-muted-foreground">(all records)</span>}
+                  {conditions.length === 0 && <span className="text-xs text-muted-foreground">(all records)</span>}
                 </div>
                 <Dialog open={condOpen} onOpenChange={setCondOpen}>
                   <DialogTrigger asChild>
@@ -228,22 +229,22 @@ export default function AutomationBuilderPage() {
                           </SelectContent>
                         </Select>
                       </div>
-                      {needsValue && <div><Label>Value</Label><Input value={condValue} onChange={e => setCondValue(e.target.value)} placeholder="Value" /></div>}
+                      <div><Label>Value</Label><Input value={condValue} onChange={e => setCondValue(e.target.value)} placeholder="Value" /></div>
                       <Button onClick={handleAddCondition} disabled={!condField} className="w-full">Add Condition</Button>
                     </div>
                   </DialogContent>
                 </Dialog>
               </div>
             </CardHeader>
-            {automation.conditionsJSON.length > 0 && (
+            {conditions.length > 0 && (
               <CardContent className="px-4 pb-4 pt-1">
                 <div className="space-y-2">
-                  {automation.conditionsJSON.map((cond, i) => {
-                    const field = fields.find(f => f.fieldKey === cond.fieldKey);
+                  {conditions.map((cond, i) => {
+                    const field = fields.find(f => f.fieldKey === cond.field_name);
                     return (
                       <div key={cond.id} className="flex items-center gap-2 bg-background/80 rounded-lg px-3 py-2 border border-border/50">
                         {i > 0 && <Badge variant="outline" className="text-[9px] px-1.5 mr-1">AND</Badge>}
-                        <span className="text-xs font-medium text-foreground">{field?.label || cond.fieldKey}</span>
+                        <span className="text-xs font-medium text-foreground">{field?.label || cond.field_name}</span>
                         <Badge variant="secondary" className="text-[10px]">{CONDITION_OPERATOR_LABELS[cond.operator]}</Badge>
                         {cond.value && <span className="text-xs text-muted-foreground">"{cond.value}"</span>}
                         <div className="flex-1" />
@@ -261,9 +262,9 @@ export default function AutomationBuilderPage() {
 
         {/* ACTIONS */}
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }} className="w-full max-w-lg space-y-3">
-          {automation.actionsJSON.map((action, i) => {
-            const Icon = ACTION_ICONS[action.type];
-            const colorClass = ACTION_COLORS[action.type];
+          {actions.map((action, i) => {
+            const Icon = ACTION_ICONS[action.action_type];
+            const colorClass = ACTION_COLORS[action.action_type];
             return (
               <div key={action.id}>
                 <Card className="border-2 border-accent/30 bg-accent/5">
@@ -273,9 +274,9 @@ export default function AutomationBuilderPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Action {i + 1}</p>
-                      <p className="text-sm font-semibold text-foreground">{ACTION_LABELS[action.type]}</p>
+                      <p className="text-sm font-semibold text-foreground">{ACTION_LABELS[action.action_type]}</p>
                       <div className="flex flex-wrap gap-1 mt-1">
-                        {Object.entries(action.config).map(([k, v]) => (
+                        {Object.entries(action.action_config).map(([k, v]) => (
                           <span key={k} className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">{k}: {v}</span>
                         ))}
                       </div>
@@ -283,14 +284,14 @@ export default function AutomationBuilderPage() {
                     <button onClick={() => removeAction(automation.id, action.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                   </CardContent>
                 </Card>
-                {i < automation.actionsJSON.length - 1 && <FlowConnector />}
+                {i < actions.length - 1 && <FlowConnector />}
               </div>
             );
           })}
 
           {/* Add Action */}
           <div className="flex flex-col items-center">
-            {automation.actionsJSON.length > 0 && <FlowConnector />}
+            {actions.length > 0 && <FlowConnector />}
             <Dialog open={actOpen} onOpenChange={setActOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline" className="border-dashed border-2 w-full max-w-lg h-14 text-muted-foreground hover:text-foreground hover:border-primary/30">
