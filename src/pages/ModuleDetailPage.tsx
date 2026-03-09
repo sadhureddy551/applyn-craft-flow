@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Plus, Filter, Search, X } from "lucide-react";
+import { ArrowLeft, Plus, Filter, Search, X, Upload, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +24,8 @@ import { createEmptyFilter, applyAdvancedFilter } from "@/lib/filter-types";
 import { useAuditLogs } from "@/hooks/useAuditLogs";
 import { useToast } from "@/hooks/use-toast";
 import { usePermission } from "@/components/PermissionProvider";
+import { ImportDialog } from "@/components/records/ImportDialog";
+import { ExportDialog } from "@/components/records/ExportDialog";
 
 export default function ModuleDetailPage() {
   const { moduleId } = useParams();
@@ -47,6 +49,7 @@ export default function ModuleDetailPage() {
   } = useModuleViews(moduleId || '');
 
   const [createOpen, setCreateOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [duplicateWarning, setDuplicateWarning] = useState<{ duplicates: DuplicateMatch[]; pendingValues: Record<string, any> } | null>(null);
@@ -153,6 +156,15 @@ export default function ModuleDetailPage() {
           <p className="text-sm text-muted-foreground">{totalCount} records</p>
         </div>
         <div className="ml-auto flex gap-2">
+          <ExportDialog
+            moduleId={moduleId || ''}
+            moduleName={mod.name}
+            fields={fields}
+            records={allRecords}
+          />
+          <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+            <Upload className="h-3.5 w-3.5 mr-1.5" />Import
+          </Button>
           <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
             <Filter className="h-3.5 w-3.5 mr-1.5" /> Filter
             {advancedFilter.conditions.length > 0 && (
@@ -259,6 +271,7 @@ export default function ModuleDetailPage() {
 
       {/* Dialogs */}
       <RecordCreateDialog open={createOpen} onOpenChange={setCreateOpen} fields={fields} onSubmit={handleCreate} moduleName={mod.name} />
+      <ImportDialog open={importOpen} onOpenChange={setImportOpen} moduleId={moduleId || ''} moduleName={mod.name} fields={fields} />
       {deleteTarget && (
         <RecordDeleteDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)} recordName={deleteTarget.name} onConfirm={handleDelete} />
       )}
