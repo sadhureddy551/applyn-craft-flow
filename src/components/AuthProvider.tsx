@@ -28,14 +28,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Fetch profile for the current user
+  // Fetch profile for the current user, create one if missing
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
       .from('profiles')
       .select('id, tenant_id, name, email, avatar_url, status, phone, timezone')
       .eq('user_id', userId)
       .maybeSingle();
-    setProfile(data as AuthContextType['profile']);
+    
+    if (data) {
+      setProfile(data as AuthContextType['profile']);
+    } else {
+      // Profile missing (user created before trigger existed) – create one
+      const { data: userData } = await supabase.auth.getUser();
+      const userEmail = userData?.user?.email || '';
+      const userName = userData?.user?.user_metadata?.name || userEmail.split('@')[0];
+      
+      // Create tenant first
+      const { data: tenant } = await supabase
+        .from('tenants')
+        .insert({ name: `${userName}'s Workspace`, owner_id: userId })
+        .select('id')
+        .single();
+      
+      if (tenant) {
+        const { data: newProfile } = await supabase
+          .from('profiles')
+          .insert({ user_id: userId, tenant_id: tenant.id, name: userName, email: userEmail, status: 'online' })
+          .select('id, tenant_id, name, email, avatar_url, status, phone, timezone')
+          .single();
+        setProfile(newProfile as AuthContextType['profile']);
+      }
+    }
   };
 
   useEffect(() => {
